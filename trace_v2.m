@@ -49,6 +49,10 @@ plot = false;
 % The fourteenth input variable is tmapflag
 atmapflag = true;
 
+% The fifteenth input variable is tmapflag
+ignoreradiusflag = true;
+
+
 threshold = 56;
 
 I_original = I;
@@ -217,4 +221,9 @@ I = I > threshold;
 		hold off
     end
     
+
+    if ignoreradiusflag
+        radius_vec = ones(size(tree(:,6)));
+        tree(:,6) = radius_vec;
+    end
     saveswc(tree, outfilename);
