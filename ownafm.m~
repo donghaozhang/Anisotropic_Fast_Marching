@@ -1,0 +1,51 @@
+clear all;close all;
+fprintf('Prepare for the original image : I binary image : bI\n');
+% load('zebraI.mat');
+load('op1resample.mat');
+threshold = 20;
+bI = I > threshold;
+fprintf('Prepare for the speed image.\n');
+
+disp('Distance transform');
+notbI = not(I>threshold);
+bdist = bwdist(notbI, 'Quasi-Euclidean');
+bdist = bdist .* double(I);
+bdist = double(bdist);
+[SourcePoint, maxD] = maxDistancePoint(bdist, I, true);
+SpeedImage= (bdist/maxD).^4;
+
+sigma_value = 0.4;
+% SpeedImage = double(bI) * 2;
+SpeedImage(SpeedImage==0) = 0.1;
+figure(1), imagesc(squeeze(max(SpeedImage,[],3))), title('speed');
+
+[DX,DY,DZ] = gradient(double(I));
+% imagesc(max(DX,[],3))
+[Dxx, Dyy, Dzz, Dxy, Dxz, Dyz] = Hessian3D(double(I), sigma_value);
+szI = size(I);
+T = zeros(szI(1),szI(2),szI(3),6);
+
+eps = 1e-5;
+T(:,:,:,1) = Dxx;
+T(:,:,:,2) = Dxy;
+T(:,:,:,3) = Dxz;
+T(:,:,:,4) = Dyy;
+T(:,:,:,5) = Dyz;
+T(:,:,:,6) = Dzz;
+
+boundary = zeros(szI(1),szI(2),szI(3));
+object = zeros(szI(1),szI(2),szI(3));
+object(SourcePoint(1),SourcePoint(2),SourcePoint(3)) = 1;
+volDim = [1,1,1];
+% we use our own speed image instead of one provided by the author of
+% anisotropic fast marching
+
+tic;
+Distance = mxAnisoDistanceTransform(object, T, boundary, SpeedImage, volDim);
+toc
+
+figure(2),imagesc(squeeze(max(Distance,[],3))), title('XY max projection');
+d = zeros(size(Distance));
+d(Distance < 300 & Distance > 0) = 1;
+% d = d ./ double(bI);
+figure(3),imagesc(squeeze(max(d,[], 3))), title('T tseg');

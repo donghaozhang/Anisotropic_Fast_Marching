@@ -1,0 +1,5 @@
+To install:
+1. unzip the zip file in a directory.
+2. From matlab run mex_all from within the directory. 
+
+Ender Konukoglu
