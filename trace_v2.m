@@ -9,9 +9,12 @@ outfilename = 'zebra.swc';
 prefix_outfilename = 'zebra';
 suffix_outfilename = '.swc';
 foreground_speed_list = [50 5 500 0.5];
-% numel(foregrround_speed_list)
-i = 1;
-% for i = 1 
+threshold = 56;
+I_original = I;
+I = I > threshold;
+% 
+% i = 1;
+for i = 1 : numel(foreground_speed_list)  
 
     % The second input variable is plot
     plot_value = false;
@@ -36,7 +39,7 @@ i = 1;
     connectrate = 1.5;
 
     % The ninth input variable is branchlen
-    branchlen = 8;
+    branchlen = 1;
 
     % The tenth input variable is somagrowthcheck
     somagrowthcheck = false;
@@ -55,15 +58,15 @@ i = 1;
     % The fourteenth input variable is tmapflag
     atmapflag = true;
 
-    % The fifteenth input variable is tmapflag
+    % The fifteenth input variable is ignoreradiusflag
     ignoreradiusflag = true;
 
+    % The sixteenth input variable is prunetreeflag
+    prunetreeflag = false;
 
-    threshold = 56;
+    % The input variable is anisotropic fast marching 
+    afmp = 0.8;
 
-    I_original = I;
-
-    I = I > threshold;
     if plot
         axes(ax);
     end
@@ -85,7 +88,7 @@ i = 1;
         maxD = max(d);
     else
         [SourcePoint, maxD] = maxDistancePoint(bdist, I, true);
-        fprintf('SourcePoint x: %d, SourcePoint y: %d, SourcePoint z: %d', SourcePoint(1), SourcePoint(2), SourcePoint(3));
+        fprintf('SourcePoint x: %d, SourcePoint y: %d, SourcePoint z: %d\n', SourcePoint(1), SourcePoint(2), SourcePoint(3));
     end
     disp('Make the speed image...')
     SpeedImage=(bdist/maxD).^4;
@@ -94,7 +97,6 @@ i = 1;
     SpeedImage(SpeedImage==0) = 1e-10;
 	if plot
         axes(ax);
-        disp('Did I disable all plots location -1?')
 	end	
 	disp('marching...');
     % Testing the relations of foreground speed coefficient 
@@ -147,7 +149,6 @@ i = 1;
     if plot
 	    [x,y,z] = sphere;
 	    plot3(x + SourcePoint(2), y + SourcePoint(1), z + SourcePoint(3), 'ro');
-        disp('Did I disable all plots location 0?')
 	end
 
     unconnectedBranches = {};
@@ -159,7 +160,6 @@ i = 1;
 
 	    if plot
 		    plot3(x + StartPoint(2), y + StartPoint(1), z + StartPoint(3), 'ro');
-            disp('Did I disable all plots location 1?')
 		end
 
 	    if T(StartPoint(1), StartPoint(2), StartPoint(3)) == 0 || I(StartPoint(1), StartPoint(2), StartPoint(3)) == 0
@@ -205,7 +205,6 @@ i = 1;
         percent = sum(B(:) & I(:)) / sum(I(:));
         if plot
             axes(ax);
-            disp('Did I disable all plots locations 2')
         end
         printn = printn + 1;
         if printn > 1
@@ -225,12 +224,13 @@ i = 1;
     if cleanercheck
         disp('Fixing topology')
         tree = fixtopology(tree);
-    end 
-    tree = prunetree_afm(tree, branchlen, plot_value);
+    end
+    if prunetreeflag 
+        tree = prunetree_afm(tree, branchlen, plot_value);
+    end
 
 	if plot
 		hold off
-        disp('Did I disable all plots locations 3')
     end
     
 
@@ -238,6 +238,7 @@ i = 1;
         radius_vec = ones(size(tree(:,6)));
         tree(:,6) = radius_vec;
     end
-    outfilename = [prefix_outfilename 'fse' num2str(foreground_speed_coeff) suffix_outfilename];
+    % var9_1 means input ninth variable is 1
+    outfilename = [prefix_outfilename 'fse' num2str(foreground_speed_coeff) 'var9_' num2str(branchlen) 'var17_' num2str(afmp) suffix_outfilename];
     saveswc(tree, outfilename);
-% end
+end

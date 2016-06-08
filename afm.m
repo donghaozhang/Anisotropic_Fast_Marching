@@ -42,7 +42,7 @@ function T_map = afm(I, threshold, foreground_speed_coefficient)
     [szx szy szz szH] = size(T);
     sumvecT = zeros([szx*szy*szz, 1]);
     counter_sumvecT = 1;
-    anisotropic_cofficient = 1;
+    anisotropic_cofficient = 0.8;
     iosotropic_vec = [1; 0; 0; 1; 0; 1];
     for i = 1 : szx
         for j = 1 : szy
@@ -53,14 +53,16 @@ function T_map = afm(I, threshold, foreground_speed_coefficient)
                 d22 = T(i,j,k,4);
                 d23 = T(i,j,k,5);
                 d33 = T(i,j,k,6);
-                temp_sum  = d11 + d12 + d13 + d22 + d23 + d33;
-                if (temp_sum == 0)
+                T_vec = squeeze(T(i,j,k,:));
+                hessianmat = hessianvaluetomat(T_vec);
+                temp_sum  = abs(d11) + abs(d12) + abs(d13) + abs(d22) + abs(d23) + abs(d33);
+                det_hessianmat = det(hessianmat);
+                if ((temp_sum == 0) || (det_hessianmat == 0))
                     T(i,j,k,1) = 1; T(i,j,k,4) = 1; T(i,j,k,6) = 1;
                 else
-                    T_vec = squeeze(T(i,j,k,:));
-                    T_vec = T_vec / temp_sum * 3;
+                    T_vec = T_vec / det_hessianmat^(1/3);
                     T(i,j,k,:) = anisotropic_cofficient * iosotropic_vec + (1 - anisotropic_cofficient) *  T_vec;  
-                end 
+                end
 %                 T(i,j,k,1) = 1; T(i,j,k,4) = 1; T(i,j,k,6) = 1;
 %                 T(i,j,k,2) = 0; T(i,j,k,3) = 0; T(i,j,k,5) = 0;
             end
