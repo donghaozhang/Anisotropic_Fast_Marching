@@ -1,4 +1,4 @@
-function T_map = afm(I, threshold)
+function T_map = afm(I, threshold, foreground_speed_coefficient)
     bI = I > threshold;
     fprintf('Prepare for the speed image.\n');
     disp('Distance transform');
@@ -9,7 +9,8 @@ function T_map = afm(I, threshold)
     [SourcePoint, maxD] = maxDistancePoint(bdist, I, true);
     % Speical treatment for anisotropic fast marching
     % SpeedImage= (bdist/maxD).^4;
-    SpeedImage= (bdist/maxD)*50;
+    
+    SpeedImage= (bdist/maxD) * foreground_speed_coefficient;
     background_speed = 1;
     SpeedImage(SpeedImage==0) = background_speed;
 

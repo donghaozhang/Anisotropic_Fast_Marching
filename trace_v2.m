@@ -6,58 +6,63 @@ load('zebraI.mat');
 % load('op1resample.mat');
 % outfilename = 'op1resample.swc';
 outfilename = 'zebra.swc';
+prefix_outfilename = 'zebra';
+suffix_outfilename = '.swc';
+foreground_speed_list = [50 5 500 0.5];
+% numel(foregrround_speed_list)
+% for i = 1 
+
+    % The second input variable is plot
+    plot_value = false;
+    plot = false;
+
+    % The third input variable is percentage 
+    percentage = 0.98;
+
+    % The fourth input vairable is rewire
+    rewire =  false;
+
+    % The fifth input vairable is gap 
+    gap = 10;
+
+    % The sixth input variable is ax
+    ax_value = false;
+
+    % The seventh input variable is dumpcheck
+    dumpcheck = true;
+
+    % The eighth input variable is connectrate
+    connectrate = 1.5;
+
+    % The ninth input variable is branchlen
+    branchlen = 8;
+
+    % The tenth input variable is somagrowthcheck
+    somagrowthcheck = false;
+
+    % The eleventh input vairable is soma structure
+    % We only test the anisotropic fast marching at this point 
+    % so we do not include soma in this script 
+
+    % The twelfth input variable is cleanercheck
+    cleanercheck = false;
+
+    % The thirteenth input variable is dtimageflag
+    dtimageflag = false;
+    
+
+    % The fourteenth input variable is tmapflag
+    atmapflag = true;
+
+    % The fifteenth input variable is tmapflag
+    ignoreradiusflag = true;
 
 
-% The second input variable is plot
-plot_value = false;
+    threshold = 56;
 
-% The third input variable is percentage 
-percentage = 0.98;
+    I_original = I;
 
-% The fourth input vairable is rewire
-rewire =  false;
-
-% The fifth input vairable is gap 
-gap = 10;
-
-% The sixth input variable is ax
-ax_value = false;
-
-% The seventh input variable is dumpcheck
-dumpcheck = true;
-
-% The eighth input variable is connectrate
-connectrate = 1.5;
-
-% The ninth input variable is branchlen
-branchlen = 8;
-
-% The tenth input variable is somagrowthcheck
-somagrowthcheck = false;
-
-% The eleventh input vairable is soma structure
-% We only test the anisotropic fast marching at this point 
-% so we do not include soma in this script 
-
-% The twelfth input variable is cleanercheck
-cleanercheck = false;
-
-% The thirteenth input variable is dtimageflag
-dtimageflag = false;
-plot = false;
-
-% The fourteenth input variable is tmapflag
-atmapflag = true;
-
-% The fifteenth input variable is tmapflag
-ignoreradiusflag = true;
-
-
-threshold = 56;
-
-I_original = I;
-
-I = I > threshold;
+    I = I > threshold;
     if plot
         axes(ax);
     end
@@ -88,12 +93,15 @@ I = I > threshold;
     SpeedImage(SpeedImage==0) = 1e-10;
 	if plot
         axes(ax);
+        disp('Did I disable all plots location -1?')
 	end	
 	disp('marching...');
+    % Testing the relations of foreground speed coefficient 
+    foreground_speed_coeff = foreground_speed_list(i);    
     if (~atmapflag)
         T = msfm(SpeedImage, SourcePoint, false, false);
     else
-        T = afm(I_original, threshold);
+        T = afm(I_original, threshold, foreground_speed_coeff);
     end
     save('T_rivulet.mat','T');
     szT = size(T);
@@ -138,6 +146,7 @@ I = I > threshold;
     if plot
 	    [x,y,z] = sphere;
 	    plot3(x + SourcePoint(2), y + SourcePoint(1), z + SourcePoint(3), 'ro');
+        disp('Did I disable all plots location 0?')
 	end
 
     unconnectedBranches = {};
@@ -145,11 +154,11 @@ I = I > threshold;
     printn = 0;
     counter = 1;
     while(true)
-
 	    StartPoint = maxDistancePoint(T, I, true);
 
 	    if plot
 		    plot3(x + StartPoint(2), y + StartPoint(1), z + StartPoint(3), 'ro');
+            disp('Did I disable all plots location 1?')
 		end
 
 	    if T(StartPoint(1), StartPoint(2), StartPoint(3)) == 0 || I(StartPoint(1), StartPoint(2), StartPoint(3)) == 0
@@ -195,6 +204,7 @@ I = I > threshold;
         percent = sum(B(:) & I(:)) / sum(I(:));
         if plot
             axes(ax);
+            disp('Did I disable all plots locations 2')
         end
         printn = printn + 1;
         if printn > 1
@@ -219,6 +229,7 @@ I = I > threshold;
 
 	if plot
 		hold off
+        disp('Did I disable all plots locations 3')
     end
     
 
@@ -226,4 +237,6 @@ I = I > threshold;
         radius_vec = ones(size(tree(:,6)));
         tree(:,6) = radius_vec;
     end
+    outfilename = [prefix_outfilename 'fse' num2str(foreground_speed_coeff) suffix_outfilename];
     saveswc(tree, outfilename);
+% end
