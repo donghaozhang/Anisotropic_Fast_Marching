@@ -10,6 +10,7 @@ prefix_outfilename = 'zebra';
 suffix_outfilename = '.swc';
 foreground_speed_list = [50 5 500 0.5];
 % numel(foregrround_speed_list)
+i = 1;
 % for i = 1 
 
     % The second input variable is plot
@@ -225,7 +226,7 @@ foreground_speed_list = [50 5 500 0.5];
         disp('Fixing topology')
         tree = fixtopology(tree);
     end 
-    tree = prunetree(tree, branchlen);
+    tree = prunetree_afm(tree, branchlen, plot_value);
 
 	if plot
 		hold off
