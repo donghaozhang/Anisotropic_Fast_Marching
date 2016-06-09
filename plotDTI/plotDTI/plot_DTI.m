@@ -1,13 +1,20 @@
-function plot_DTI(D)
+function plot_DTI(D, pos)
     delta = 1;
     nx = size(D, 1);
     ny = size(D, 2);
     nz = size(D, 3);
     figure
     hold on
-    for i=1:110
-        for j=25:35
-            for k=15
+    prefix_x = constrain(pos.x - 5, 1, nx);
+    suffix_x = constrain(pos.x + 5, 1, nx);
+    prefix_y = constrain(pos.y - 5, 1, ny);
+    suffix_y = constrain(pos.y + 5, 1, ny);
+    prefix_z = constrain(pos.z - 5, 1, nz);
+    suffix_z = constrain(pos.z + 5, 1, nz);
+    constrain_z = constrain(pos.z, 1, nz)
+    for i = prefix_x : suffix_x
+        for j = prefix_y : suffix_y
+            for k = constrain_z
                 T_vec = squeeze(D(i,j,k,:))
                 hessianmat = hessianvaluetomat(T_vec);
                 [v,l]=eig(hessianmat);
@@ -27,8 +34,7 @@ function plot_DTI(D)
                 % fprintf('x: %d, y: %d, z: %d\n', i, j, k);
             end
         end
-    end
-    
+    end   
     axis equal
     view([0 90]);
     set(gca,'GridLineStyle','none')
