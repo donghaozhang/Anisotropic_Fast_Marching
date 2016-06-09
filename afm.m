@@ -1,4 +1,4 @@
-function T_map = afm(I, threshold, foreground_speed_coefficient)
+function T_map = afm(I, threshold, foreground_speed_coefficient, speedastensorflag)
     bI = I > threshold;
     fprintf('Prepare for the speed image.\n');
     disp('Distance transform');
@@ -25,7 +25,11 @@ function T_map = afm(I, threshold, foreground_speed_coefficient)
     % figure(1), imagesc(squeeze(max(SpeedImage,[],3))), title('speed');
 
     % imagesc(max(DX,[],3))
-    [Dxx, Dyy, Dzz, Dxy, Dxz, Dyz] = Hessian3D(double(I), sigma_value);
+    if speedastensorflag
+        [Dxx, Dyy, Dzz, Dxy, Dxz, Dyz] = Hessian3D(double(bdist), sigma_value);
+    else
+        [Dxx, Dyy, Dzz, Dxy, Dxz, Dyz] = Hessian3D(double(I), sigma_value);
+    end
     szI = size(I);
     T = zeros(szI(1),szI(2),szI(3),6);
 
@@ -42,7 +46,7 @@ function T_map = afm(I, threshold, foreground_speed_coefficient)
     [szx szy szz szH] = size(T);
     sumvecT = zeros([szx*szy*szz, 1]);
     counter_sumvecT = 1;
-    anisotropic_cofficient = 0.8;
+    anisotropic_cofficient = 0.95;
     iosotropic_vec = [1; 0; 0; 1; 0; 1];
     for i = 1 : szx
         for j = 1 : szy
@@ -60,7 +64,8 @@ function T_map = afm(I, threshold, foreground_speed_coefficient)
                 if ((temp_sum == 0) || (det_hessianmat == 0))
                     T(i,j,k,1) = 1; T(i,j,k,4) = 1; T(i,j,k,6) = 1;
                 else
-                    T_vec = T_vec / det_hessianmat^(1/3);
+                    % T_vec = T_vec / ((abs(det_hessianmat))^(1/3)) / 20;
+                    T_vec = T_vec / norm(T_vec) * 10;
                     T(i,j,k,:) = anisotropic_cofficient * iosotropic_vec + (1 - anisotropic_cofficient) *  T_vec;  
                 end
 %                 T(i,j,k,1) = 1; T(i,j,k,4) = 1; T(i,j,k,6) = 1;
@@ -68,6 +73,7 @@ function T_map = afm(I, threshold, foreground_speed_coefficient)
             end
         end
     end
+    save('diffussion.mat','T');
     boundary_value = zeros(szI(1),szI(2),szI(3));
     object = zeros(szI(1),szI(2),szI(3));
     object(SourcePoint(1),SourcePoint(2),SourcePoint(3)) = 1;

@@ -8,7 +8,8 @@ load('zebraI.mat');
 outfilename = 'zebra.swc';
 prefix_outfilename = 'zebra';
 suffix_outfilename = '.swc';
-foreground_speed_list = [50 5 500 0.5];
+% foreground_speed_list = [50 5 500 0.5];
+foreground_speed_list = [50];
 threshold = 56;
 I_original = I;
 I = I > threshold;
@@ -64,8 +65,11 @@ for i = 1 : numel(foreground_speed_list)
     % The sixteenth input variable is prunetreeflag
     prunetreeflag = false;
 
-    % The input variable is anisotropic fast marching 
-    afmp = 0.8;
+    % The seventeen input variable is anisotropic fast marching 
+    afmp = 0.95;
+
+    % The eighteenth input variable is use speedimage to calculate diffusion matrix or not
+    speedastensorflag = true;
 
     if plot
         axes(ax);
@@ -104,7 +108,7 @@ for i = 1 : numel(foreground_speed_list)
     if (~atmapflag)
         T = msfm(SpeedImage, SourcePoint, false, false);
     else
-        T = afm(I_original, threshold, foreground_speed_coeff);
+        T = afm(I_original, threshold, foreground_speed_coeff, speedastensorflag);
     end
     save('T_rivulet.mat','T');
     szT = size(T);
@@ -239,6 +243,6 @@ for i = 1 : numel(foreground_speed_list)
         tree(:,6) = radius_vec;
     end
     % var9_1 means input ninth variable is 1
-    outfilename = [prefix_outfilename 'fse' num2str(foreground_speed_coeff) 'var9_' num2str(branchlen) 'var17_' num2str(afmp) suffix_outfilename];
+    outfilename = [prefix_outfilename 'fse' num2str(foreground_speed_coeff) 'var9_' num2str(branchlen) 'var17_' num2str(afmp) 'var18_' num2str(speedastensorflag) suffix_outfilename];
     saveswc(tree, outfilename);
 end
