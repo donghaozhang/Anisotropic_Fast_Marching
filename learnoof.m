@@ -107,7 +107,8 @@
 %  Email: max.w.k.law@gmail.com 
 %  Page: http://www.cse.ust.hk/~maxlawwk/
 
-function [output, tempoof, leig1, leig2, leig3] = learnoof(image, radii, options)
+% function [output, tempoof, leig1, leig2, leig3] = learnoof(image, radii, options)
+function hessian_output = learnoof(image, radii, options)
 
     tempoof = zeros(size(image, 1), size(image, 2), size(image, 3), numel(radii));
     leig1 = zeros(size(image, 1), size(image, 2), size(image, 3), numel(radii));
@@ -123,7 +124,12 @@ function [output, tempoof, leig1, leig2, leig3] = learnoof(image, radii, options
     % marginwidth = [ceil((max(radii)+sigma*3)/pixelspacing(1)) ceil((max(radii)+sigma*3)/pixelspacing(2)) ceil((max(radii)+sigma*3)/pixelspacing(3)) ];
 
     output=image(marginwidth(1)+1:end-marginwidth(1), marginwidth(2)+1:end-marginwidth(2), marginwidth(3)+1:end-marginwidth(3))*0; 
-    
+    hessian_output11 = zeros(size(output));
+    hessian_output12 = zeros(size(output));
+    hessian_output13 = zeros(size(output));
+    hessian_output22 = zeros(size(output));
+    hessian_output23 = zeros(size(output));
+    hessian_output33 = zeros(size(output));
     % Default options
     rtype = 0;
     etype = 1;
@@ -210,6 +216,7 @@ function [output, tempoof, leig1, leig2, leig3] = learnoof(image, radii, options
                                      besseljBuffer;
         buffer=ifft(buffer, [], 1);buffer=ifft(buffer, [], 2);buffer=ifft(buffer, [], 3, 'symmetric');
         buffer = freqOp(buffer, marginwidth); outputfeature_11 = buffer;
+
         clear buffer;
         buffer=ifftshiftedcoordinate(size(image), 1, pixelspacing).*ifftshiftedcoordinate(size(image), 2, pixelspacing).* ........x.*y.*  .....    
                                      besseljBuffer;
@@ -296,7 +303,22 @@ function [output, tempoof, leig1, leig2, leig3] = learnoof(image, radii, options
 % Select the voxelwise responses according to the largest mangitude response
         tempoof(:, :, :, i) = tmpfeature;
         condition = (abs(tmpfeature)>abs(output));
+        % disp(size(condition));
+        size_tmp = size(condition); 
         output(condition) = tmpfeature(condition);
+        hessian_output11(condition) = outputfeature_11(condition);
+        hessian_output12(condition) = outputfeature_12(condition);
+        hessian_output13(condition) = outputfeature_13(condition);
+        hessian_output22(condition) = outputfeature_22(condition);
+        hessian_output23(condition) = outputfeature_23(condition);
+        hessian_output33(condition) = outputfeature_33(condition);
     end
-    
+    hessian_output = [];
+    % hessian_output = [hessian_output; hessian_output11];
+    hessian_output(:,:,:,1) = hessian_output11;
+    hessian_output(:,:,:,2) = hessian_output12;
+    hessian_output(:,:,:,3) = hessian_output13;
+    hessian_output(:,:,:,4) = hessian_output22;
+    hessian_output(:,:,:,5) = hessian_output23;
+    hessian_output(:,:,:,6) = hessian_output33;
 end
