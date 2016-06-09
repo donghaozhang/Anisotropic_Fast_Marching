@@ -11,11 +11,11 @@ function plot_DTI(D, pos)
     suffix_y = constrain(pos.y + 5, 1, ny);
     prefix_z = constrain(pos.z - 5, 1, nz);
     suffix_z = constrain(pos.z + 5, 1, nz);
-    constrain_z = constrain(pos.z, 1, nz)
+    constrain_z = constrain(pos.z, 1, nz);
     for i = prefix_x : suffix_x
         for j = prefix_y : suffix_y
             for k = constrain_z
-                T_vec = squeeze(D(i,j,k,:))
+                T_vec = squeeze(D(i,j,k,:));
                 hessianmat = hessianvaluetomat(T_vec);
                 [v,l]=eig(hessianmat);
                 [X,Y,Z]=ellipsoid(0,0,0,l(1,1),l(2,2),l(3,3),10);
