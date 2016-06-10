@@ -6,7 +6,7 @@ load('zebraI.mat');
 % load('op1resample.mat');
 % outfilename = 'op1resample.swc';
 outfilename = 'zebra.swc';
-prefix_outfilename = 'zebra';
+prefix_outfilename = 'swc/zebra';
 suffix_outfilename = '.swc';
 % foreground_speed_list = [50 5 500 0.5];
 foreground_speed_list = [50];
@@ -71,6 +71,10 @@ for i = 1 : numel(foreground_speed_list)
     % The eighteenth input variable is use speedimage to calculate diffusion matrix or not
     speedastensorflag = true;
 
+    % The nineteenth input variable is use hessianmatrix from oof at multiscale to calculate diffusion matrix or not
+    oofhmflag = true;
+
+
     if plot
         axes(ax);
     end
@@ -108,7 +112,7 @@ for i = 1 : numel(foreground_speed_list)
     if (~atmapflag)
         T = msfm(SpeedImage, SourcePoint, false, false);
     else
-        T = afm(I_original, threshold, foreground_speed_coeff, speedastensorflag);
+        T = afm(I_original, threshold, foreground_speed_coeff, speedastensorflag, oofhmflag);
     end
     save('T_rivulet.mat','T');
     szT = size(T);

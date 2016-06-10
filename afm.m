@@ -1,4 +1,4 @@
-function T_map = afm(I, threshold, foreground_speed_coefficient, speedastensorflag)
+function T_map = afm(I, threshold, foreground_speed_coefficient, speedastensorflag, oofhmflag)
     bI = I > threshold;
     fprintf('Prepare for the speed image.\n');
     disp('Distance transform');
@@ -18,28 +18,33 @@ function T_map = afm(I, threshold, foreground_speed_coefficient, speedastensorfl
     % SpeedImage=(bdist/maxD).^4;
     % clear bdist;
     % SpeedImage(SpeedImage==0) = 1e-10;
-
-    sigma_value = 0.43;
-    % SpeedImage = double(bI) * 2;
-
-    % figure(1), imagesc(squeeze(max(SpeedImage,[],3))), title('speed');
-
-    % imagesc(max(DX,[],3))
-    if speedastensorflag
-        [Dxx, Dyy, Dzz, Dxy, Dxz, Dyz] = Hessian3D(double(bdist), sigma_value);
-    else
-        [Dxx, Dyy, Dzz, Dxy, Dxz, Dyz] = Hessian3D(double(I), sigma_value);
-    end
     szI = size(I);
-    T = zeros(szI(1),szI(2),szI(3),6);
+    if (~oofhmflag)
+        sigma_value = 0.43;
+        if speedastensorflag
+            [Dxx, Dyy, Dzz, Dxy, Dxz, Dyz] = Hessian3D(double(bdist), sigma_value);
+        else
+            [Dxx, Dyy, Dzz, Dxy, Dxz, Dyz] = Hessian3D(double(I), sigma_value);
+        end
 
-    eps = 1e-5;
-    T(:,:,:,1) = Dxx;
-    T(:,:,:,2) = Dxy;
-    T(:,:,:,3) = Dxz;
-    T(:,:,:,4) = Dyy;
-    T(:,:,:,5) = Dyz;
-    T(:,:,:,6) = Dzz;
+        T = zeros(szI(1),szI(2),szI(3),6);
+
+        eps = 1e-5;
+        T(:,:,:,1) = Dxx;
+        T(:,:,:,2) = Dxy;
+        T(:,:,:,3) = Dxz;
+        T(:,:,:,4) = Dyy;
+        T(:,:,:,5) = Dyz;
+        T(:,:,:,6) = Dzz;
+    elseif oofhmflag
+        clear opts; 
+        opts.useabsolute = 0; 
+        opts.responsetype = 1; 
+        opts.normalizationtype = 0;
+        radius = [1:3];
+        T = oof_hessian(double(I), radius, opts);
+    end
+            
     % why I do the following code is make sure that Dxx = 1; Dyy = 1; Dzz = 1;
     % Dxy == Dyx = 0 Dxz == Dzx = 0
     % The identity matrix is assigned to tensor diffussion matrix to avoid D=zeros   
@@ -73,7 +78,7 @@ function T_map = afm(I, threshold, foreground_speed_coefficient, speedastensorfl
             end
         end
     end
-    save('diffussion.mat','T');
+    save('mat/diffussion.mat','T');
     boundary_value = zeros(szI(1),szI(2),szI(3));
     object = zeros(szI(1),szI(2),szI(3));
     object(SourcePoint(1),SourcePoint(2),SourcePoint(3)) = 1;

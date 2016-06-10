@@ -108,7 +108,7 @@
 %  Page: http://www.cse.ust.hk/~maxlawwk/
 
 % function [output, tempoof, leig1, leig2, leig3] = learnoof(image, radii, options)
-function hessian_output = learnoof(image, radii, options)
+function hessian_output = oof_hessian(image, radii, options)
 
     tempoof = zeros(size(image, 1), size(image, 2), size(image, 3), numel(radii));
     leig1 = zeros(size(image, 1), size(image, 2), size(image, 3), numel(radii));
@@ -306,6 +306,7 @@ function hessian_output = learnoof(image, radii, options)
         % disp(size(condition));
         size_tmp = size(condition); 
         output(condition) = tmpfeature(condition);
+        % Only store the hessian matrix having the largest off response
         hessian_output11(condition) = outputfeature_11(condition);
         hessian_output12(condition) = outputfeature_12(condition);
         hessian_output13(condition) = outputfeature_13(condition);
