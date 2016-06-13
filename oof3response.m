@@ -146,7 +146,7 @@ function [output, tempoof, leig1, leig2, leig3] = oof3response(image, radii, opt
             sigma = options.sigma;
         end
         if isfield(options, 'useabsolute')~=0
-            etype = options.useabosolute;
+            etype = options.useabsolute;
         end
         if ((min(radii)<sigma) & ntype>0)
             disp('Sigma must be >= minimum range to enable the advanced normalization. The current setting falls back to options.normalizationtype=0, because of the undersize sigma.');
