@@ -182,7 +182,7 @@ function [output, tempoof, leig1, leig2, leig3] = oof3response(image, radii, opt
     clear x y z 
 
     for i=1:length(radii)
-        fprintf('Working on radii %f\n', radii(i));
+        fprintf('Working on radii %d\n', radii(i));
         normalization = 4/3*pi*radii(i)^3/(besselj(1.5, 2*pi*radii(i)*1e-12)/(1e-12)^(3/2)) /radii(i)^2 * ((radii(i)/sqrt(2*radii(i)*sigma-sigma*sigma))^ntype);
         
         besseljBuffer = normalization * exp((-(sigma)^2)*2*pi*pi* (radius.^2))./(radius.^(3/2));

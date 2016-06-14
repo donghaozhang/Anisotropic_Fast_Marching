@@ -1,4 +1,4 @@
-function T_map = afm(I, threshold, foreground_speed_coefficient, speedastensorflag, oofhmflag)
+function T_map = afm(I, threshold, foreground_speed_coefficient, speedastensorflag, oofhmflag, anisotropic_cofficient)
     bI = I > threshold;
     fprintf('Prepare for the speed image.\n');
     disp('Distance transform');
@@ -13,15 +13,17 @@ function T_map = afm(I, threshold, foreground_speed_coefficient, speedastensorfl
     SpeedImage= (bdist/maxD) * foreground_speed_coefficient;
     background_speed = 1;
     SpeedImage(SpeedImage==0) = background_speed;
-
+    figure(1),imagesc(squeeze(max(SpeedImage,[],3))'), title('speed iamge xy projection rivulet');
+    figure(2),imagesc(squeeze(max(SpeedImage,[],2))), title('speed iamge xy projection original rivulet');
     % Original 
     % SpeedImage=(bdist/maxD).^4;
     % clear bdist;
     % SpeedImage(SpeedImage==0) = 1e-10;
     szI = size(I);
     if (~oofhmflag)
-        sigma_value = 0.43;
+        sigma_value = 0.7;
         if speedastensorflag
+            disp('Did it run or not?');
             [Dxx, Dyy, Dzz, Dxy, Dxz, Dyz] = Hessian3D(double(bdist), sigma_value);
         else
             [Dxx, Dyy, Dzz, Dxy, Dxz, Dyz] = Hessian3D(double(I), sigma_value);
@@ -51,7 +53,7 @@ function T_map = afm(I, threshold, foreground_speed_coefficient, speedastensorfl
     [szx szy szz szH] = size(T);
     sumvecT = zeros([szx*szy*szz, 1]);
     counter_sumvecT = 1;
-    anisotropic_cofficient = 0.95;
+    % anisotropic_cofficient = 0.95;
     iosotropic_vec = [1; 0; 0; 1; 0; 1];
     for i = 1 : szx
         for j = 1 : szy

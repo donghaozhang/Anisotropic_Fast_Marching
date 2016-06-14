@@ -1,9 +1,9 @@
 clear opts; 
 opts.useabsolute = 0; 
-opts.responsetype = 2; 
+opts.responsetype = 3; 
 opts.normalizationtype = 1;
 load('zebraI.mat');
-for i = 1:10
+for i = 1:4
 	radius = [1:i];
 	hessian_out = oof3response(double(I), radius, opts);
 	prefix_oof = 'mat\oof_r_';
