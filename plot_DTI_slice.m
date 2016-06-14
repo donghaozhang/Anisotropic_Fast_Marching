@@ -26,12 +26,13 @@ function plot_DTI_slice(D, zslice, bI)
                     Y = Y + (j-1) * delta * 2;
                     Z = Z + (k-1) * delta * 2;
                     h(i) = surf(X,Y,Z);
+                    scatter3(i,j,k);
                     % fprintf('x: %d, y: %d, z: %d\n', i, j, k);
                 end
             end
         end
     end   
-    axis equal
+    axis on
     view([0 90]);
     set(gca,'GridLineStyle','none')
     set(gca,'XTick',[])

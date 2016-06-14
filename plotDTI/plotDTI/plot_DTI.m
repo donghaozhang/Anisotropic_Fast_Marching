@@ -31,6 +31,7 @@ function plot_DTI(D, pos)
                 Y=Y+(j-1)*delta*2;
                 Z=Z+(k-1)*delta*2;
                 h(i)=surf(X,Y,Z);
+                
                 % fprintf('x: %d, y: %d, z: %d\n', i, j, k);
             end
         end

@@ -10,10 +10,11 @@ prefix_outfilename = 'swc/zebra';
 suffix_outfilename = '.swc';
 % foreground_speed_list = [50 5 500 0.5];
 foreground_speed_list = [30 40 50 60];
-afmp_list = [0.92];
+afmp_list = [0.96];
 threshold = 56;
 I_original = I;
 I = I > threshold;
+save('mat\bI.mat','I');
 % 
 % i = 1;
 % for i = 1 : numel(foreground_speed_list)  
@@ -39,10 +40,10 @@ for i = 1 : numel(afmp_list)
     dumpcheck = true;
 
     % The eighth input variable is connectrate
-    connectrate = 1.5;
+    connectrate = 1.2;
 
     % The ninth input variable is branchlen
-    branchlen = 1;
+    branchlen = 5;
 
     % The tenth input variable is somagrowthcheck
     somagrowthcheck = false;
@@ -72,7 +73,7 @@ for i = 1 : numel(afmp_list)
     afmp = afmp_list(i);
 
     % The eighteenth input variable is use speedimage to calculate diffusion matrix or not
-    speedastensorflag = false;
+    speedastensorflag = true;
 
     % The nineteenth input variable is use hessianmatrix from oof at multiscale to calculate diffusion matrix or not
     oofhmflag = true;
@@ -112,149 +113,149 @@ for i = 1 : numel(afmp_list)
 	disp('marching...');
     % Testing the relations of foreground speed coefficient 
     % foreground_speed_coeff = foreground_speed_list(i);
-    foreground_speed_coeff = 40;    
+    foreground_speed_coeff = 60;    
     if (~atmapflag)
         T = msfm(SpeedImage, SourcePoint, false, false);
     else
         T = afm(I_original, threshold, foreground_speed_coeff, speedastensorflag, oofhmflag, afmp);
     end
-%     subplot(2,2,i)
-%     T_tmp = squeeze(max(T,[],3));
-%     imagesc(permute(T_tmp, [2 1])); 
-%     title(['Time map ' num2str(i)]);
-%     save('T_rivulet.mat','T');
-%     szT = size(T);
-%     fprintf('the size of time map, x is : %d, y is : %d, z is : %d\n', szT(1), szT(2), szT(3));
-%     disp('Finish marching')
-% 
-%     if somagrowthcheck
-%         fprintf('Mark soma label on time-crossing map\n')
-%         T(soma.I==1) = -2;
-%     end
-% 
-%     if plot
-%     	hold on 
-%     end
-% 
-%     tree = []; % swc tree
-%     if somagrowthcheck
-%         fprintf('Initialization of swc tree.\n'); 
-%         tree(1, 1) = 1;
-%         tree(1, 2) = 2;
-%         tree(1, 3) = soma.x;
-%         tree(1, 4) = soma.y;
-%         tree(1, 5) = soma.z;
-%         % fprintf('source point x : %d, y : %d, z : %d.\n', uint8(SourcePoint(1)), uint8(SourcePoint(2)), uint8(SourcePoint(3)));         
-%         tree(1, 6) = 1;
-%         tree(1, 7) = -1;
-%     end
-% 
-%     prune = true;
-% 	% Calculate gradient of DistanceMap
-% 	disp('Calculating gradient...')
-%     grad = distgradient(T);
-%     if plot
-%         axes(ax);
-%     end
-%     S = {};
-%     B = zeros(size(T));
-%     if somagrowthcheck
-%         B = B | (soma.I>0.5);
-%     end
-%     lconfidence = [];
-%     if plot
-% 	    [x,y,z] = sphere;
-% 	    plot3(x + SourcePoint(2), y + SourcePoint(1), z + SourcePoint(3), 'ro');
-% 	end
-% 
-%     unconnectedBranches = {};
-%     printcount = 0;
-%     printn = 0;
-%     counter = 1;
-%     while(true)
-% 	    StartPoint = maxDistancePoint(T, I, true);
-% 
-% 	    if plot
-% 		    plot3(x + StartPoint(2), y + StartPoint(1), z + StartPoint(3), 'ro');
-% 		end
-% 
-% 	    if T(StartPoint(1), StartPoint(2), StartPoint(3)) == 0 || I(StartPoint(1), StartPoint(2), StartPoint(3)) == 0
-% 	    	break;
-% 	    end
-% 
-% 	    [l, dump, merged, somamerged] = shortestpath2(T, grad, I, tree, StartPoint, SourcePoint, 1, 'rk4', gap);
-% 
-%         if size(l, 1) == 0
-%             l = StartPoint'; % Make sure the start point will be erased
-%         end
-% 	    % Get radius of each point from distance transform
-% 	    radius = zeros(size(l, 1), 1);
-% 	    parfor r = 1 : size(l, 1)
-% 		    radius(r) = getradius(I, l(r, 1), l(r, 2), l(r, 3));
-% 		end
-% 	    radius(radius < 1) = 1;
-% 		assert(size(l, 1) == size(radius, 1));
-% 
-%         [covermask, centremask] = binarysphere3d(size(T), l, radius);
-% 	    % Remove the traced path from the timemap
-%         if cleanercheck & size(l, 1) > branchlen
-%             covermask = augmask(covermask, I, l, radius);
-%         end
-% 
-%         % covermask(StartPoint(1), StartPoint(2), StartPoint(3)) = 3; % Why? Double check if it is nessensary - SQ
-% 
-%         T(covermask) = -1;
-%         T(centremask) = -3;
-% 
-% 	    % if cleanercheck
-%      %        T(wash==1) = -1;
-%      %    end
-% 
-% 	    % Add l to the tree
-% 	    if ~((dump) && dumpcheck) 
-% 		    [tree, newtree, conf, unconnected] = addbranch2tree(tree, l, merged, connectrate, radius, I, branchlen, plot, somamerged);
-%             lconfidence = [lconfidence, conf];
-% 		end
-% 
-%         B = B | covermask;
-% 
-%         percent = sum(B(:) & I(:)) / sum(I(:));
-%         if plot
-%             axes(ax);
-%         end
-%         printn = printn + 1;
-%         if printn > 1
-%             fprintf(1, repmat('\b',1,printcount));
-%             printcount = fprintf('Tracing percent: %f%%\n', percent*100);
-%         end
-%         if percent >= percentage
-%         	disp('Coverage reached end tracing...')
-%         	break;
-%         end
-%         counter = counter + 1;
-% 
-%     end
-% 
-%     meanconf = mean(lconfidence);
-% 
-%     if cleanercheck
-%         disp('Fixing topology')
-%         tree = fixtopology(tree);
-%     end
-%     if prunetreeflag 
-%         tree = prunetree_afm(tree, branchlen, plot_value);
-%     end
-% 
-% 	if plot
-% 		hold off
-%     end
-%     
-% 
-%     if ignoreradiusflag
-%         radius_vec = ones(size(tree(:,6)));
-%         tree(:,6) = radius_vec;
-%     end
-%     % var9_1 means input ninth variable is 1
-%     outfilename = [prefix_outfilename 'fse' num2str(foreground_speed_coeff) 'var9_' num2str(branchlen) 'var17_' num2str(afmp) 'var18_' num2str(speedastensorflag) suffix_outfilename];
-%     saveswc(tree, outfilename);
+    subplot(2,2,i)
+    T_tmp = squeeze(max(T,[],3));
+    imagesc(permute(T_tmp, [2 1])); 
+    title(['Time map ' num2str(i)]);
+    save('T_rivulet.mat','T');
+    szT = size(T);
+    fprintf('the size of time map, x is : %d, y is : %d, z is : %d\n', szT(1), szT(2), szT(3));
+    disp('Finish marching')
+
+    if somagrowthcheck
+        fprintf('Mark soma label on time-crossing map\n')
+        T(soma.I==1) = -2;
+    end
+
+    if plot
+    	hold on 
+    end
+
+    tree = []; % swc tree
+    if somagrowthcheck
+        fprintf('Initialization of swc tree.\n'); 
+        tree(1, 1) = 1;
+        tree(1, 2) = 2;
+        tree(1, 3) = soma.x;
+        tree(1, 4) = soma.y;
+        tree(1, 5) = soma.z;
+        % fprintf('source point x : %d, y : %d, z : %d.\n', uint8(SourcePoint(1)), uint8(SourcePoint(2)), uint8(SourcePoint(3)));         
+        tree(1, 6) = 1;
+        tree(1, 7) = -1;
+    end
+
+    prune = true;
+	% Calculate gradient of DistanceMap
+	disp('Calculating gradient...')
+    grad = distgradient(T);
+    if plot
+        axes(ax);
+    end
+    S = {};
+    B = zeros(size(T));
+    if somagrowthcheck
+        B = B | (soma.I>0.5);
+    end
+    lconfidence = [];
+    if plot
+	    [x,y,z] = sphere;
+	    plot3(x + SourcePoint(2), y + SourcePoint(1), z + SourcePoint(3), 'ro');
+	end
+
+    unconnectedBranches = {};
+    printcount = 0;
+    printn = 0;
+    counter = 1;
+    while(true)
+	    StartPoint = maxDistancePoint(T, I, true);
+
+	    if plot
+		    plot3(x + StartPoint(2), y + StartPoint(1), z + StartPoint(3), 'ro');
+		end
+
+	    if T(StartPoint(1), StartPoint(2), StartPoint(3)) == 0 || I(StartPoint(1), StartPoint(2), StartPoint(3)) == 0
+	    	break;
+	    end
+
+	    [l, dump, merged, somamerged] = shortestpath2(T, grad, I, tree, StartPoint, SourcePoint, 1, 'rk4', gap);
+
+        if size(l, 1) == 0
+            l = StartPoint'; % Make sure the start point will be erased
+        end
+	    % Get radius of each point from distance transform
+	    radius = zeros(size(l, 1), 1);
+	    parfor r = 1 : size(l, 1)
+		    radius(r) = getradius(I, l(r, 1), l(r, 2), l(r, 3));
+		end
+	    radius(radius < 1) = 1;
+		assert(size(l, 1) == size(radius, 1));
+
+        [covermask, centremask] = binarysphere3d(size(T), l, radius);
+	    % Remove the traced path from the timemap
+        if cleanercheck & size(l, 1) > branchlen
+            covermask = augmask(covermask, I, l, radius);
+        end
+
+        % covermask(StartPoint(1), StartPoint(2), StartPoint(3)) = 3; % Why? Double check if it is nessensary - SQ
+
+        T(covermask) = -1;
+        T(centremask) = -3;
+
+	    % if cleanercheck
+     %        T(wash==1) = -1;
+     %    end
+
+	    % Add l to the tree
+	    if ~((dump) && dumpcheck) 
+		    [tree, newtree, conf, unconnected] = addbranch2tree(tree, l, merged, connectrate, radius, I, branchlen, plot, somamerged);
+            lconfidence = [lconfidence, conf];
+		end
+
+        B = B | covermask;
+
+        percent = sum(B(:) & I(:)) / sum(I(:));
+        if plot
+            axes(ax);
+        end
+        printn = printn + 1;
+        if printn > 1
+            fprintf(1, repmat('\b',1,printcount));
+            printcount = fprintf('Tracing percent: %f%%\n', percent*100);
+        end
+        if percent >= percentage
+        	disp('Coverage reached end tracing...')
+        	break;
+        end
+        counter = counter + 1;
+
+    end
+
+    meanconf = mean(lconfidence);
+
+    if cleanercheck
+        disp('Fixing topology')
+        tree = fixtopology(tree);
+    end
+    if prunetreeflag 
+        tree = prunetree_afm(tree, branchlen, plot_value);
+    end
+
+	if plot
+		hold off
+    end
+    
+
+    if ignoreradiusflag
+        radius_vec = ones(size(tree(:,6)));
+        tree(:,6) = radius_vec;
+    end
+    % var9_1 means input ninth variable is 1
+    outfilename = [prefix_outfilename 'fse' num2str(foreground_speed_coeff) 'var8_' num2str(connectrate) 'var9_' num2str(branchlen) 'var17_' num2str(afmp) 'var18_' num2str(speedastensorflag) suffix_outfilename];
+    saveswc(tree, outfilename);
 end

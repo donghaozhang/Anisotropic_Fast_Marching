@@ -13,8 +13,8 @@ function T_map = afm(I, threshold, foreground_speed_coefficient, speedastensorfl
     SpeedImage= (bdist/maxD) * foreground_speed_coefficient;
     background_speed = 1;
     SpeedImage(SpeedImage==0) = background_speed;
-    figure(1),imagesc(squeeze(max(SpeedImage,[],3))'), title('speed iamge xy projection rivulet');
-    figure(2),imagesc(squeeze(max(SpeedImage,[],2))), title('speed iamge xy projection original rivulet');
+%     figure(1),imagesc(squeeze(max(SpeedImage,[],3))'), title('speed iamge xy projection rivulet');
+%     figure(2),imagesc(squeeze(max(SpeedImage,[],2))), title('speed iamge xy projection original rivulet');
     % Original 
     % SpeedImage=(bdist/maxD).^4;
     % clear bdist;
@@ -32,12 +32,14 @@ function T_map = afm(I, threshold, foreground_speed_coefficient, speedastensorfl
         T = zeros(szI(1),szI(2),szI(3),6);
 
         eps = 1e-5;
-        T(:,:,:,1) = Dxx;
-        T(:,:,:,2) = Dxy;
-        T(:,:,:,3) = Dxz;
-        T(:,:,:,4) = Dyy;
-        T(:,:,:,5) = Dyz;
-        T(:,:,:,6) = Dzz;
+        scale_para = 3;
+        T(:,:,:,1) = Dxx * scale_para;
+        T(:,:,:,2) = Dxy * scale_para;
+        T(:,:,:,3) = Dxz * scale_para;
+        T(:,:,:,4) = Dyy * scale_para;
+        T(:,:,:,5) = Dyz * scale_para;
+        T(:,:,:,6) = Dzz * scale_para;
+        save('mat\hmatvess.mat','T');
     elseif oofhmflag
         clear opts; 
         opts.useabsolute = 0; 
@@ -45,6 +47,7 @@ function T_map = afm(I, threshold, foreground_speed_coefficient, speedastensorfl
         opts.normalizationtype = 0;
         radius = [1:3];
         T = oof_hessian(double(I), radius, opts);
+        save('mat\hmatoof.mat','T');
     end
             
     % why I do the following code is make sure that Dxx = 1; Dyy = 1; Dzz = 1;
@@ -80,7 +83,7 @@ function T_map = afm(I, threshold, foreground_speed_coefficient, speedastensorfl
             end
         end
     end
-    save('mat/diffussion.mat','T');
+    save('mat\diffussion.mat','T');
     boundary_value = zeros(szI(1),szI(2),szI(3));
     object = zeros(szI(1),szI(2),szI(3));
     object(SourcePoint(1),SourcePoint(2),SourcePoint(3)) = 1;
