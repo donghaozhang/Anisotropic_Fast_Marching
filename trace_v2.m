@@ -13,7 +13,8 @@ foreground_speed_list = [30 40 50 60];
 afmp_list = [0.96];
 threshold = 56;
 I_original = I;
-I = I > threshold;
+% I = I > threshold;
+oofilter;
 save('mat\bI.mat','I');
 % 
 % i = 1;
@@ -256,6 +257,23 @@ for i = 1 : numel(afmp_list)
         tree(:,6) = radius_vec;
     end
     % var9_1 means input ninth variable is 1
-    outfilename = [prefix_outfilename 'fse' num2str(foreground_speed_coeff) 'var8_' num2str(connectrate) 'var9_' num2str(branchlen) 'var17_' num2str(afmp) 'var18_' num2str(speedastensorflag) suffix_outfilename];
+    outfilename = [prefix_outfilename 'fse' num2str(foreground_speed_coeff) 'var8_' num2str(connectrate) 'var9_' num2str(branchlen) 'var14_' num2str(atmapflag) 'var17_' num2str(afmp) 'var18_' num2str(speedastensorflag) suffix_outfilename];
+    rivuletpara.plot_value = plot_value;
+    rivuletpara.percentage = percentage;
+    rivuletpara.gap = gap;
+    rivuletpara.ax_value = ax_value;
+    rivuletpara.dumpcheck = rivuletpara.dumpcheck;
+    rivuletpara.connectrate = connectrate;
+    rivuletpara.branchlen = branchlen;
+    rivuletpara.somagrowthcheck = somagrowthcheck;
+
+    rivuletpara.cleanercheck = cleanercheck;
+    rivuletpara.dtimageflag = dtimageflag;
+    rivuletpara.atmapflag = atmapflag;
+    rivuletpara.ignoreradiusflag = ignoreradiusflag;
+    rivuletpara.prunetreeflag = prunetreeflag;
+    rivuletpara.afmp = afmp;
+    rivuletpara.speedastensorflag = speedastensorflag;
+    rivuletpara.oofhmflag = oofhmflag;
     saveswc(tree, outfilename);
 end
