@@ -257,12 +257,20 @@ for i = 1 : numel(afmp_list)
         tree(:,6) = radius_vec;
     end
     % var9_1 means input ninth variable is 1
-    outfilename = [prefix_outfilename 'fse' num2str(foreground_speed_coeff) 'var8_' num2str(connectrate) 'var9_' num2str(branchlen) 'var14_' num2str(atmapflag) 'var17_' num2str(afmp) 'var18_' num2str(speedastensorflag) suffix_outfilename];
+    curtime = clock;
+    timelist = fix(curtime);
+    timestring = [];
+    for i = 1 : numel(timelist) 
+        curstring = num2str(timelist(i));
+        timestring = [timestring curstring];
+    end
+    outfilename = [prefix_outfilename timestring suffix_outfilename];
     rivuletpara.plot_value = plot_value;
     rivuletpara.percentage = percentage;
+    rivuletpara.rewire = rewire;
     rivuletpara.gap = gap;
     rivuletpara.ax_value = ax_value;
-    rivuletpara.dumpcheck = rivuletpara.dumpcheck;
+    rivuletpara.dumpcheck = dumpcheck;
     rivuletpara.connectrate = connectrate;
     rivuletpara.branchlen = branchlen;
     rivuletpara.somagrowthcheck = somagrowthcheck;
@@ -276,4 +284,5 @@ for i = 1 : numel(afmp_list)
     rivuletpara.speedastensorflag = speedastensorflag;
     rivuletpara.oofhmflag = oofhmflag;
     saveswc(tree, outfilename);
+    savepara(rivuletpara, outfilename)
 end
