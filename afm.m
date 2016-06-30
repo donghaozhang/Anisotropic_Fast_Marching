@@ -26,6 +26,7 @@ function T_map = afm(I, threshold, foreground_speed_coefficient, speedastensorfl
             [Dxx, Dyy, Dzz, Dxy, Dxz, Dyz] = Hessian3D(double(bdist), sigma_value);
         else
             [Dxx, Dyy, Dzz, Dxy, Dxz, Dyz] = Hessian3D(double(I), sigma_value);
+            fprintf('The hessian matrix is derived from frangi.\n');
         end
 
         T = zeros(szI(1),szI(2),szI(3),6);
@@ -44,8 +45,9 @@ function T_map = afm(I, threshold, foreground_speed_coefficient, speedastensorfl
         opts.useabsolute = 0; 
         opts.responsetype = 1; 
         opts.normalizationtype = 0;
-        radius = [1:3];
+        radius = [1:7];
         T = oof_hessian(double(I), radius, opts);
+        fprintf('The hessian matrix is derived from optimal oriented flux.\n');
         save('mat\hmatoof.mat','T');
     end
             

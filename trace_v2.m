@@ -61,7 +61,7 @@ for i = 1 : numel(afmp_list)
     
 
     % The fourteenth input variable is tmapflag
-    atmapflag = false;
+    atmapflag = true;
 
     % The fifteenth input variable is ignoreradiusflag
     ignoreradiusflag = true;
@@ -74,7 +74,7 @@ for i = 1 : numel(afmp_list)
     afmp = afmp_list(i);
 
     % The eighteenth input variable is use speedimage to calculate diffusion matrix or not
-    speedastensorflag = true;
+    speedastensorflag = false;
 
     % The nineteenth input variable is use hessianmatrix from oof at multiscale to calculate diffusion matrix or not
     oofhmflag = true;
