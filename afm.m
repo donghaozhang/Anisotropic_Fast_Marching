@@ -23,7 +23,6 @@ function T_map = afm(I, threshold, foreground_speed_coefficient, speedastensorfl
     if (~oofhmflag)
         sigma_value = 0.7;
         if speedastensorflag
-            disp('Did it run or not?');
             [Dxx, Dyy, Dzz, Dxy, Dxz, Dyz] = Hessian3D(double(bdist), sigma_value);
         else
             [Dxx, Dyy, Dzz, Dxy, Dxz, Dyz] = Hessian3D(double(I), sigma_value);
@@ -76,7 +75,8 @@ function T_map = afm(I, threshold, foreground_speed_coefficient, speedastensorfl
                 else
                     % T_vec = T_vec / ((abs(det_hessianmat))^(1/3)) / 20;
                     T_vec = T_vec / norm(T_vec) * 10;
-                    T(i,j,k,:) = anisotropic_cofficient * iosotropic_vec + (1 - anisotropic_cofficient) *  T_vec;  
+                    % T(i,j,k,:) = anisotropic_cofficient * iosotropic_vec + (1 - anisotropic_cofficient) *  T_vec;  
+                    T(i,j,k,:) = (1 - anisotropic_cofficient) *  T_vec;  
                 end
 %                 T(i,j,k,1) = 1; T(i,j,k,4) = 1; T(i,j,k,6) = 1;
 %                 T(i,j,k,2) = 0; T(i,j,k,3) = 0; T(i,j,k,5) = 0;

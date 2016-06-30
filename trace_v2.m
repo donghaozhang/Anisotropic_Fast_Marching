@@ -61,7 +61,7 @@ for i = 1 : numel(afmp_list)
     
 
     % The fourteenth input variable is tmapflag
-    atmapflag = true;
+    atmapflag = false;
 
     % The fifteenth input variable is ignoreradiusflag
     ignoreradiusflag = true;
@@ -117,6 +117,7 @@ for i = 1 : numel(afmp_list)
     foreground_speed_coeff = 60;    
     if (~atmapflag)
         T = msfm(SpeedImage, SourcePoint, false, false);
+        fprintf('Did I use normal fast marching?');
     else
         T = afm(I_original, threshold, foreground_speed_coeff, speedastensorflag, oofhmflag, afmp);
     end
