@@ -1,4 +1,4 @@
-function T_map = afm(I, threshold, foreground_speed_coefficient, speedastensorflag, oofhmflag, anisotropic_cofficient)
+function T_map = afm(I, threshold, foreground_speed_coefficient, speedastensorflag, oofhmflag, anisotropic_cofficient, boostveconeflag)
     bI = I > threshold;
     fprintf('Prepare for the speed image.\n');
     disp('Distance transform');
@@ -59,6 +59,8 @@ function T_map = afm(I, threshold, foreground_speed_coefficient, speedastensorfl
     counter_sumvecT = 1;
     % anisotropic_cofficient = 0.95;
     iosotropic_vec = [1; 0; 0; 1; 0; 1];
+    % I just fixed this value I am considering including this value into rivulet parameters
+    scale_coefficient = 1;
     for i = 1 : szx
         for j = 1 : szy
             for k = 1 : szz
@@ -76,15 +78,24 @@ function T_map = afm(I, threshold, foreground_speed_coefficient, speedastensorfl
                     T(i,j,k,1) = 1; T(i,j,k,4) = 1; T(i,j,k,6) = 1;
                 else
                     % T_vec = T_vec / ((abs(det_hessianmat))^(1/3)) / 20;
-                    T_vec = T_vec / norm(T_vec) * 10;
-                    % T(i,j,k,:) = anisotropic_cofficient * iosotropic_vec + (1 - anisotropic_cofficient) *  T_vec;  
-                    T(i,j,k,:) = (1 - anisotropic_cofficient) *  T_vec;  
+                    T_vec = T_vec / norm(T_vec)*3;
+                    if (~boostveconeflag)
+                        T(i,j,k,:) = anisotropic_cofficient * iosotropic_vec + (1 - anisotropic_cofficient) *  T_vec;  
+                        % T(i,j,k,:) = (1 - anisotropic_cofficient) *  T_vec;
+                    elseif boostveconeflag
+                        hessianmat = hessianvaluetomat(T_vec);
+                        [V, D] = eig(hessianmat);
+                        tensormat = scale_coefficient * D(1,1) * V(:,1) * V(:,1)' + D(2,2) * V(:,2) * V(:,2)' + D(3,3) * V(:,3) * V(:,3)';
+                        T_vec = [tensormat(1,1); tensormat(1,2); tensormat(1,3); tensormat(2,2); tensormat(2,3); tensormat(3,3);]; 
+                    end
+                        T(i,j,k,:) = anisotropic_cofficient * iosotropic_vec + (1 - anisotropic_cofficient) *  T_vec;  
                 end
 %                 T(i,j,k,1) = 1; T(i,j,k,4) = 1; T(i,j,k,6) = 1;
 %                 T(i,j,k,2) = 0; T(i,j,k,3) = 0; T(i,j,k,5) = 0;
             end
         end
     end
+    % T = boost_vec_one(bI, T, 5);                
     save('mat\diffussion.mat','T');
     boundary_value = zeros(szI(1),szI(2),szI(3));
     object = zeros(szI(1),szI(2),szI(3));

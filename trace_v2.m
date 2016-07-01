@@ -10,7 +10,7 @@ prefix_outfilename = 'swc/zebra';
 suffix_outfilename = '.swc';
 % foreground_speed_list = [50 5 500 0.5];
 foreground_speed_list = [30 40 50 60];
-afmp_list = [0.96];
+afmp_list = [0];
 threshold = 56;
 I_original = I;
 % I = I > threshold;
@@ -32,7 +32,7 @@ for i = 1 : numel(afmp_list)
     rewire =  false;
 
     % The fifth input vairable is gap 
-    gap = 10;
+    gap = 5;
 
     % The sixth input variable is ax
     ax_value = false;
@@ -73,11 +73,14 @@ for i = 1 : numel(afmp_list)
     % afmp = 0.95;
     afmp = afmp_list(i);
 
-    % The eighteenth input variable is use speedimage to calculate diffusion matrix or not
+    % The eighteenth input variable is to use speedimage to calculate diffusion matrix or not
     speedastensorflag = false;
 
-    % The nineteenth input variable is use hessianmatrix from oof at multiscale to calculate diffusion matrix or not
+    % The nineteenth input variable is to use hessianmatrix from oof at multiscale to calculate diffusion matrix or not
     oofhmflag = true;
+
+    % The twentieth input variable control whether we will highlight the direction of first eigenvector 
+    boostveconeflag = true; 
 
 
     if plot
@@ -119,7 +122,7 @@ for i = 1 : numel(afmp_list)
         T = msfm(SpeedImage, SourcePoint, false, false);
         fprintf('Did I use normal fast marching?');
     else
-        T = afm(I_original, threshold, foreground_speed_coeff, speedastensorflag, oofhmflag, afmp);
+        T = afm(I_original, threshold, foreground_speed_coeff, speedastensorflag, oofhmflag, afmp, boostveconeflag);
     end
     subplot(2,2,i)
     T_tmp = squeeze(max(T,[],3));
@@ -284,6 +287,7 @@ for i = 1 : numel(afmp_list)
     rivuletpara.afmp = afmp;
     rivuletpara.speedastensorflag = speedastensorflag;
     rivuletpara.oofhmflag = oofhmflag;
+    rivuletpara.boostveconeflag = boostveconeflag;
     saveswc(tree, outfilename);
     savepara(rivuletpara, outfilename)
 end
