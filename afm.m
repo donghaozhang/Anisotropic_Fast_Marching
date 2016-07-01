@@ -6,6 +6,11 @@ function T_map = afm(I, threshold, foreground_speed_coefficient, speedastensorfl
     bdist = bwdist(notbI, 'Quasi-Euclidean');
     bdist = bdist .* double(bI);
     bdist = double(bdist);
+%     %% These two lines will be removed in the future 
+%     bdist = bdist > 0;
+%     bdist = double(bdist);
+    
+    %%
     [SourcePoint, maxD] = maxDistancePoint(bdist, I, true);
     % Speical treatment for anisotropic fast marching
     % SpeedImage= (bdist/maxD).^4;
@@ -60,7 +65,7 @@ function T_map = afm(I, threshold, foreground_speed_coefficient, speedastensorfl
     % anisotropic_cofficient = 0.95;
     iosotropic_vec = [1; 0; 0; 1; 0; 1];
     % I just fixed this value I am considering including this value into rivulet parameters
-    scale_coefficient = 1;
+    scale_coefficient = 5;
     for i = 1 : szx
         for j = 1 : szy
             for k = 1 : szz

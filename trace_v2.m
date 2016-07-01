@@ -10,7 +10,7 @@ prefix_outfilename = 'swc/zebra';
 suffix_outfilename = '.swc';
 % foreground_speed_list = [50 5 500 0.5];
 foreground_speed_list = [30 40 50 60];
-afmp_list = [0];
+afmp_list = [0.96];
 threshold = 56;
 I_original = I;
 % I = I > threshold;
@@ -288,6 +288,8 @@ for i = 1 : numel(afmp_list)
     rivuletpara.speedastensorflag = speedastensorflag;
     rivuletpara.oofhmflag = oofhmflag;
     rivuletpara.boostveconeflag = boostveconeflag;
+    showbibox(I);
+    showswc(tree);
     saveswc(tree, outfilename);
     savepara(rivuletpara, outfilename)
 end
