@@ -64,7 +64,7 @@ for i = 1 : numel(afmp_list)
     atmapflag = true;
 
     % The fifteenth input variable is ignoreradiusflag
-    ignoreradiusflag = true;
+    ignoreradiusflag = false;
 
     % The sixteenth input variable is prunetreeflag
     prunetreeflag = false;
@@ -128,7 +128,7 @@ for i = 1 : numel(afmp_list)
     T_tmp = squeeze(max(T,[],3));
     imagesc(permute(T_tmp, [2 1])); 
     title(['Time map ' num2str(i)]);
-    save('T_rivulet.mat','T');
+    % save('T_rivulet.mat','T');
     szT = size(T);
     fprintf('the size of time map, x is : %d, y is : %d, z is : %d\n', szT(1), szT(2), szT(3));
     disp('Finish marching')
