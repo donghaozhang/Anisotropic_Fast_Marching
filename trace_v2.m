@@ -290,6 +290,7 @@ for i = 1 : numel(afmp_list)
     rivuletpara.boostveconeflag = boostveconeflag;
     showbibox(I);
     showswc(tree);
+    compareradius;
     saveswc(tree, outfilename);
-    savepara(rivuletpara, outfilename)
+    savepara(rivuletpara, outfilename);
 end
