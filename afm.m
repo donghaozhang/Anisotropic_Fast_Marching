@@ -51,10 +51,11 @@ function T_map = afm(I, threshold, foreground_speed_coefficient, speedastensorfl
         opts.responsetype = 1; 
         opts.normalizationtype = 0;
         radius = [1:7];
-        [T, eigvoof] = oof_hessian(double(I), radius, opts);
+        [T, eigvoof, radius_output] = oof_hessian(double(I), radius, opts);
         fprintf('The hessian matrix is derived from optimal oriented flux.\n');
         save('mat\hmatoof.mat','T');
         save('mat\eigvoof.mat', 'eigvoof');
+        save('mat\radius_output.mat', 'radius_output');
     end
             
     % why I do the following code is make sure that Dxx = 1; Dyy = 1; Dzz = 1;

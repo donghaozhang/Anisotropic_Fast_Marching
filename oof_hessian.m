@@ -108,7 +108,7 @@
 %  Page: http://www.cse.ust.hk/~maxlawwk/
 
 % function [output, tempoof, leig1, leig2, leig3] = learnoof(image, radii, options)
-function [hessian_output, eigv_output] = oof_hessian(image, radii, options)
+function [hessian_output, eigv_output, radius_output] = oof_hessian(image, radii, options)
 
     tempoof = zeros(size(image, 1), size(image, 2), size(image, 3), numel(radii));
     leig1 = zeros(size(image, 1), size(image, 2), size(image, 3), numel(radii));
@@ -133,6 +133,7 @@ function [hessian_output, eigv_output] = oof_hessian(image, radii, options)
     eigv_outputmaxe = zeros(size(output));
     eigv_outputmide = zeros(size(output));
     eigv_outputmine = zeros(size(output));
+    radius_output = zeros(size(output));
     % Default options
     rtype = 0;
     etype = 1;
@@ -307,6 +308,8 @@ function [hessian_output, eigv_output] = oof_hessian(image, radii, options)
         end
         % I comment the following line to extract eigenvalues
         % clear mide;
+        % The following line create radius matrix
+        radiumat = ones(size(maxe)).* i; 
 
 % Select the voxelwise responses according to the largest mangitude response
         tempoof(:, :, :, i) = tmpfeature;
@@ -324,6 +327,7 @@ function [hessian_output, eigv_output] = oof_hessian(image, radii, options)
         eigv_outputmaxe(condition) = maxe(condition);
         eigv_outputmide(condition) = mide(condition);
         eigv_outputmine(condition) = mine(condition);
+        radius_output(condition) = radiumat(condition);
 
     end
     hessian_output = [];
