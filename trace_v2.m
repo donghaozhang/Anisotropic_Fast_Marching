@@ -6,6 +6,8 @@ load('zebraI.mat');
 % load('op1resample.mat');
 % outfilename = 'op1resample.swc';
 outfilename = 'zebra.swc';
+% outfilename = 'op1resample.swc';
+% prefix_outfilename = 'swc/op1resample';
 prefix_outfilename = 'swc/zebra';
 suffix_outfilename = '.swc';
 % foreground_speed_list = [50 5 500 0.5];
@@ -196,7 +198,8 @@ for i = 1 : numel(afmp_list)
 	    % Get radius of each point from distance transform
 	    radius = zeros(size(l, 1), 1);
 	    parfor r = 1 : size(l, 1)
-		    radius(r) = getradius(I, l(r, 1), l(r, 2), l(r, 3));
+            radius(r) = getradius(I, l(r, 1), l(r, 2), l(r, 3));
+		    % radius(r) = getradiusfrangi(I, whatScale, l(r, 1), l(r, 2), l(r, 3));
 		end
 	    radius(radius < 1) = 1;
 		assert(size(l, 1) == size(radius, 1));
@@ -290,7 +293,7 @@ for i = 1 : numel(afmp_list)
     rivuletpara.boostveconeflag = boostveconeflag;
     showbibox(I);
     showswc(tree);
-    compareradius;
+    compareradiusoof;
     saveswc(tree, outfilename);
     savepara(rivuletpara, outfilename);
 end

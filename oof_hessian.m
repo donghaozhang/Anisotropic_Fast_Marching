@@ -108,7 +108,7 @@
 %  Page: http://www.cse.ust.hk/~maxlawwk/
 
 % function [output, tempoof, leig1, leig2, leig3] = learnoof(image, radii, options)
-function hessian_output = oof_hessian(image, radii, options)
+function [hessian_output, eigv_output] = oof_hessian(image, radii, options)
 
     tempoof = zeros(size(image, 1), size(image, 2), size(image, 3), numel(radii));
     leig1 = zeros(size(image, 1), size(image, 2), size(image, 3), numel(radii));
@@ -130,6 +130,9 @@ function hessian_output = oof_hessian(image, radii, options)
     hessian_output22 = zeros(size(output));
     hessian_output23 = zeros(size(output));
     hessian_output33 = zeros(size(output));
+    eigv_outputmaxe = zeros(size(output));
+    eigv_outputmide = zeros(size(output));
+    eigv_outputmine = zeros(size(output));
     % Default options
     rtype = 0;
     etype = 1;
@@ -259,6 +262,8 @@ function hessian_output = oof_hessian(image, radii, options)
         % The following code sorts the unorderred eigenvalues according to
         % their magnitude. 
         maxe = eigenvalue1;
+        % disp(size(maxe))
+
         mine = eigenvalue1;
         clear eigenvalue1;        
         mide = maxe + eigenvalue2 + eigenvalue3;
@@ -282,7 +287,8 @@ function hessian_output = oof_hessian(image, radii, options)
         end
         
         mide = mide - maxe - mine;
-        clear mine;
+        % I comment the following line to extract eigenvalues
+        % clear mine;
         
 % Feel free the change the combination of the eigenvalues, just as vesselness mesaure        
         switch rtype
@@ -299,7 +305,9 @@ function hessian_output = oof_hessian(image, radii, options)
             case 5,
                 tmpfeature = max(maxe+mide, 0);
         end
-        clear mide;
+        % I comment the following line to extract eigenvalues
+        % clear mide;
+
 % Select the voxelwise responses according to the largest mangitude response
         tempoof(:, :, :, i) = tmpfeature;
         condition = (abs(tmpfeature)>abs(output));
@@ -313,6 +321,10 @@ function hessian_output = oof_hessian(image, radii, options)
         hessian_output22(condition) = outputfeature_22(condition);
         hessian_output23(condition) = outputfeature_23(condition);
         hessian_output33(condition) = outputfeature_33(condition);
+        eigv_outputmaxe(condition) = maxe(condition);
+        eigv_outputmide(condition) = mide(condition);
+        eigv_outputmine(condition) = mine(condition);
+
     end
     hessian_output = [];
     % hessian_output = [hessian_output; hessian_output11];
@@ -322,4 +334,7 @@ function hessian_output = oof_hessian(image, radii, options)
     hessian_output(:,:,:,4) = hessian_output22;
     hessian_output(:,:,:,5) = hessian_output23;
     hessian_output(:,:,:,6) = hessian_output33;
+    eigv_output(:,:,:,1)    = eigv_outputmaxe;
+    eigv_output(:,:,:,2)    = eigv_outputmine;
+    eigv_output(:,:,:,3)    = eigv_outputmide;
 end

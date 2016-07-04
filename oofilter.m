@@ -1,11 +1,12 @@
 % clear all; 
 close all;
-fprintf('Prepare for the original image : I binary image : bI\n');
+% fprintf('Prepare for the original image : I binary image : bI\n');
 clear opts; 
 opts.useabsolute = 0; 
 opts.responsetype = 3; 
 opts.normalizationtype = 1;
 load('zebraI.mat');
+% load('op1resample.mat');
 radius = 1 : 3; 
 hessian_out = oof3response(double(I), radius, opts);
 thresholdoof = 0.1;
@@ -25,3 +26,4 @@ I = combineB;
 clear B;
 clear hessian_out;
 clear thresI;
+% [Iout,whatScale,Voutx,Vouty,Voutz]=FrangiFilter3D(I_original);
