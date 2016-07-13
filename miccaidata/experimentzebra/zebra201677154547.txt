@@ -1,4 +1,0 @@
-plot: 00 percentage: 0.98 rewire: 0 gap:     5 ax_value:   dumpcheck: 1
-, connectrate: 1.2 branchlen: 10 somagrowthcheck: 0.0 cleanercheck: 0.0 dtimageflag: 0.0 atmapflag: 1.0
-, ignoreradiusflag: 1 prunetreeflag: 0 afmp: 1.00 speedatensorflag: 0 oofhmflag: 1.0 boostveconeflag: 1.0
- skeletonspeedflag: 0.0
