@@ -1,11 +1,22 @@
-function T_map = afm(I, threshold, foreground_speed_coefficient, speedastensorflag, oofhmflag, anisotropic_cofficient, boostveconeflag)
+function T_map = afm(I, threshold, foreground_speed_coefficient, speedastensorflag, oofhmflag, anisotropic_cofficient, boostveconeflag, skeletonspeedflag)
     bI = I > threshold;
     fprintf('Prepare for the speed image.\n');
     disp('Distance transform');
-    notbI = not(I>threshold);
-    bdist = bwdist(notbI, 'Quasi-Euclidean');
-    bdist = bdist .* double(bI);
-    bdist = double(bdist);
+    if(skeletonspeedflag)
+        skel = Skeleton3D(bI);
+        bdist = bwdist(skel, 'Quasi-Euclidean');
+        bdist = bdist .* double(bI);
+        bdist = double(bdist);
+        maxskel = max(bdist(:));
+        bdist = maxskel + 2 - bdist;
+        bdist = bdist .* double(bI);
+        save('mat\skelspeed.mat','bdist'); 
+    else
+        notbI = not(I>threshold);
+        bdist = bwdist(notbI, 'Quasi-Euclidean');
+        bdist = bdist .* double(bI);
+        bdist = double(bdist);
+    end
 %     %% These two lines will be removed in the future 
 %     bdist = bdist > 0;
 %     bdist = double(bdist);
@@ -44,18 +55,19 @@ function T_map = afm(I, threshold, foreground_speed_coefficient, speedastensorfl
         T(:,:,:,4) = Dyy * scale_para;
         T(:,:,:,5) = Dyz * scale_para;
         T(:,:,:,6) = Dzz * scale_para;
-        save('mat\hmatvess.mat','T');
+        % save('mat\hmatvess.mat','T');
     elseif oofhmflag
         clear opts; 
         opts.useabsolute = 0; 
         opts.responsetype = 1; 
         opts.normalizationtype = 0;
-        radius = [1:7];
+        % radius = [1:7];
+        radius = [1:3];
         [T, eigvoof, radius_output] = oof_hessian(double(I), radius, opts);
         fprintf('The hessian matrix is derived from optimal oriented flux.\n');
-        save('mat\hmatoof.mat','T');
-        save('mat\eigvoof.mat', 'eigvoof');
-        save('mat\radius_output.mat', 'radius_output');
+%         save('mat\hmatoof.mat','T');
+%         save('mat\eigvoof.mat', 'eigvoof');
+%         save('mat\radius_output.mat', 'radius_output');
     end
             
     % why I do the following code is make sure that Dxx = 1; Dyy = 1; Dzz = 1;
@@ -67,7 +79,7 @@ function T_map = afm(I, threshold, foreground_speed_coefficient, speedastensorfl
     % anisotropic_cofficient = 0.95;
     iosotropic_vec = [1; 0; 0; 1; 0; 1];
     % I just fixed this value I am considering including this value into rivulet parameters
-    scale_coefficient = 5;
+    scale_coefficient = 3;
     for i = 1 : szx
         for j = 1 : szy
             for k = 1 : szz
@@ -95,7 +107,8 @@ function T_map = afm(I, threshold, foreground_speed_coefficient, speedastensorfl
                         tensormat = scale_coefficient * D(1,1) * V(:,1) * V(:,1)' + D(2,2) * V(:,2) * V(:,2)' + D(3,3) * V(:,3) * V(:,3)';
                         T_vec = [tensormat(1,1); tensormat(1,2); tensormat(1,3); tensormat(2,2); tensormat(2,3); tensormat(3,3);]; 
                     end
-                        T(i,j,k,:) = anisotropic_cofficient * iosotropic_vec + (1 - anisotropic_cofficient) *  T_vec;  
+                        T(i,j,k,:) = anisotropic_cofficient * iosotropic_vec + (1 - anisotropic_cofficient) *  T_vec;
+                        % T(i,j,k,:) = (1 - anisotropic_cofficient) *  T_vec;
                 end
 %                 T(i,j,k,1) = 1; T(i,j,k,4) = 1; T(i,j,k,6) = 1;
 %                 T(i,j,k,2) = 0; T(i,j,k,3) = 0; T(i,j,k,5) = 0;
@@ -103,7 +116,7 @@ function T_map = afm(I, threshold, foreground_speed_coefficient, speedastensorfl
         end
     end
     % T = boost_vec_one(bI, T, 5);                
-    save('mat\diffussion.mat','T');
+    % save('mat\diffussion.mat','T');
     boundary_value = zeros(szI(1),szI(2),szI(3));
     object = zeros(szI(1),szI(2),szI(3));
     object(SourcePoint(1),SourcePoint(2),SourcePoint(3)) = 1;

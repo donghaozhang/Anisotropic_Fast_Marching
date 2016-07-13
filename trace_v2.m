@@ -1,23 +1,40 @@
 clear all; close all;
 fprintf('Prepare for the original image : I binary image : bI\n');
-load('zebraI.mat');
-
+% The following line is designed for zebrafish
+% load('midzebraI.mat');
+% mouseRGC
+% load('miccaidata\experimentmouseRGC\mouseRGCresampled.mat');
+% load('miccaidata\experimentjaneliafly\janeliaflypart2ex5resampled.mat');
+% mid
 % The first input variable I is inside op1resample.mat 
 % load('op1resample.mat');
 % outfilename = 'op1resample.swc';
-outfilename = 'zebra.swc';
+load('zebraI.mat');
+% load first5
+% load('miccaidata\experimentfirst5\first5.mat')
+% outfilename = 'janelia.swc';
 % outfilename = 'op1resample.swc';
-% prefix_outfilename = 'swc/op1resample';
-prefix_outfilename = 'swc/zebra';
+prefix_outfilename = 'miccaidata\experimentfirst5\first5';
+% prefix_outfilename = 'miccaidata\experimentmouseRGC\mouseRGC';
+% prefix_outfilename = 'miccaidata\experimentjaneliafly\janelia';
 suffix_outfilename = '.swc';
 % foreground_speed_list = [50 5 500 0.5];
 foreground_speed_list = [30 40 50 60];
-afmp_list = [0.96];
-threshold = 56;
+afmp_list = [0.93];
+% midzebra threshold
+% threshold = 70; 
+% mouseRGC threshold
+% threshold = 8;
+% janeliafly part2 ex5
+threshold = 40;
 I_original = I;
-% I = I > threshold;
-oofilter;
-save('mat\bI.mat','I');
+I = I > threshold;
+% oofilter;
+% the following line load the binary image of mouse RGC
+% load('miccaidata\experimentmouseRGC\mouseRGCresampledbI.mat');
+% the following line load the binary image of janelia fly
+% load('miccaidata\experimentjaneliafly\janeliaflybI.mat');
+% save('mat\bI.mat','I');
 % 
 % i = 1;
 % for i = 1 : numel(foreground_speed_list)  
@@ -34,7 +51,7 @@ for i = 1 : numel(afmp_list)
     rewire =  false;
 
     % The fifth input vairable is gap 
-    gap = 5;
+    gap = 10;
 
     % The sixth input variable is ax
     ax_value = false;
@@ -46,7 +63,7 @@ for i = 1 : numel(afmp_list)
     connectrate = 1.2;
 
     % The ninth input variable is branchlen
-    branchlen = 5;
+    branchlen = 10;
 
     % The tenth input variable is somagrowthcheck
     somagrowthcheck = false;
@@ -66,7 +83,7 @@ for i = 1 : numel(afmp_list)
     atmapflag = true;
 
     % The fifteenth input variable is ignoreradiusflag
-    ignoreradiusflag = false;
+    ignoreradiusflag = true;
 
     % The sixteenth input variable is prunetreeflag
     prunetreeflag = false;
@@ -83,6 +100,9 @@ for i = 1 : numel(afmp_list)
 
     % The twentieth input variable control whether we will highlight the direction of first eigenvector 
     boostveconeflag = true; 
+
+    % The twenty-first input variable control whether we will highlight the direction of first eigenvector 
+    skeletonspeedflag = false;
 
 
     if plot
@@ -122,14 +142,15 @@ for i = 1 : numel(afmp_list)
     foreground_speed_coeff = 60;    
     if (~atmapflag)
         T = msfm(SpeedImage, SourcePoint, false, false);
-        fprintf('Did I use normal fast marching?');
+        fprintf('Multistencils fast marching is running.\n');
     else
-        T = afm(I_original, threshold, foreground_speed_coeff, speedastensorflag, oofhmflag, afmp, boostveconeflag);
+        T = afm(I_original, threshold, foreground_speed_coeff, speedastensorflag, oofhmflag, afmp, boostveconeflag, skeletonspeedflag);
+        fprintf('Anisotropic fast marching is running.\n');
     end
-    subplot(2,2,i)
+%     subplot(2,2,i)
     T_tmp = squeeze(max(T,[],3));
-    imagesc(permute(T_tmp, [2 1])); 
-    title(['Time map ' num2str(i)]);
+%     imagesc(permute(T_tmp, [2 1])); 
+%     title(['Time map ' num2str(i)]);
     % save('T_rivulet.mat','T');
     szT = size(T);
     fprintf('the size of time map, x is : %d, y is : %d, z is : %d\n', szT(1), szT(2), szT(3));
@@ -179,7 +200,14 @@ for i = 1 : numel(afmp_list)
     printcount = 0;
     printn = 0;
     counter = 1;
+    dumplist = [];
+    branchlist = [];
+    mergedlist = [];
+    swclist = [];
+    branchcounter = 0;
+    hold on
     while(true)
+        branchcounter = 1 + branchcounter;  
 	    StartPoint = maxDistancePoint(T, I, true);
 
 	    if plot
@@ -191,18 +219,24 @@ for i = 1 : numel(afmp_list)
 	    end
 
 	    [l, dump, merged, somamerged] = shortestpath2(T, grad, I, tree, StartPoint, SourcePoint, 1, 'rk4', gap);
-
+        % scatter3(l(:,2), l(:,1), l(:,3));
+        dump = false;
+        merged = true;
+        dumplist = [dump; dumplist];
+        branchlist = [l; branchlist];
         if size(l, 1) == 0
             l = StartPoint'; % Make sure the start point will be erased
         end
+        % scatter3(l(:,2), l(:,1), l(:,3), 'r');
 	    % Get radius of each point from distance transform
 	    radius = zeros(size(l, 1), 1);
 	    parfor r = 1 : size(l, 1)
             radius(r) = getradius(I, l(r, 1), l(r, 2), l(r, 3));
+            % radius(r) = getradiusoof(I, l(r, 1), l(r, 2), l(r, 3), eigvoof)
 		    % radius(r) = getradiusfrangi(I, whatScale, l(r, 1), l(r, 2), l(r, 3));
 		end
 	    radius(radius < 1) = 1;
-		assert(size(l, 1) == size(radius, 1));
+		% assert(size(l, 1) == size(radius, 1));
 
         [covermask, centremask] = binarysphere3d(size(T), l, radius);
 	    % Remove the traced path from the timemap
@@ -220,7 +254,9 @@ for i = 1 : numel(afmp_list)
      %    end
 
 	    % Add l to the tree
-	    if ~((dump) && dumpcheck) 
+	    if ~((dump) && dumpcheck)
+            % scatter3(l(:,2), l(:,1), l(:,3), 'b');
+            swclist = [swclist;branchcounter];
 		    [tree, newtree, conf, unconnected] = addbranch2tree(tree, l, merged, connectrate, radius, I, branchlen, plot, somamerged);
             lconfidence = [lconfidence, conf];
 		end
@@ -291,9 +327,13 @@ for i = 1 : numel(afmp_list)
     rivuletpara.speedastensorflag = speedastensorflag;
     rivuletpara.oofhmflag = oofhmflag;
     rivuletpara.boostveconeflag = boostveconeflag;
-    showbibox(I);
+    rivuletpara.skeletonspeedflag = skeletonspeedflag;
+    % showbibox(I);
     showswc(tree);
-    compareradiusoof;
+    % compareradiusoof;
     saveswc(tree, outfilename);
     savepara(rivuletpara, outfilename);
+%     hold on
+%     scatter3(branchlist(:,2), branchlist(:,1), branchlist(:,3), 'b');
+%     hold off
 end
