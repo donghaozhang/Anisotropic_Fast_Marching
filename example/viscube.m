@@ -60,11 +60,9 @@ for k = 1 : 8
     col=[rand, rand, rand];
     X1=[];Y1=[];Z1=[];
     trX_tmp = trX(k, :);
-    X1 = [X1; trX_tmp(1)];
     trY_tmp = trY(k, :);
-    X1 = [X1; trY_tmp(1)];
     trZ_tmp = trZ(k, :);
-    X1 = [X1; trZ_tmp(1); trX_tmp(1)];
+    X1 = [X1; trX_tmp(1); trY_tmp(1); trZ_tmp(1); trX_tmp(1)];
     Y1 = [Y1; trX_tmp(2); trY_tmp(2); trZ_tmp(2); trX_tmp(2)];
     Z1 = [Z1; trX_tmp(3); trY_tmp(3); trZ_tmp(3); trX_tmp(3)];
     plot3(X1, Y1, Z1, 'color', col)
