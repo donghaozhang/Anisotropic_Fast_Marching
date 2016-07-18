@@ -1,0 +1,13 @@
+load('../../mat/diffussion.mat');
+x = 100; 
+y = 32;
+z = 14;
+Ta = 1;
+Tb = 1.5;
+F = 1;
+d_a = 3;
+d_b = 4;
+Dbig =  permute(T, [4 3 2 1]);
+a = [1, 4, 7];
+b = [1, 2, 3];
+fvalue = afmminimize_Analytic2(Ta, Tb, x, y, z, Dbig, a, b, F, d_a, d_b);
