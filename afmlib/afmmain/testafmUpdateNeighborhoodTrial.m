@@ -15,4 +15,6 @@ Tvalue = zeros(afmSize);
 Tvalue = permute(Tvalue, [3 2 1]);
 Ttag = zeros(afmSize);
 Ttag = permute(Ttag, [3 2 1]);
-[Tvalue, Ttag, value_iter] = afmUpdateNeighborhoodTrial(Tvalue, Ttag, Boundary, dx, dy, dz, afmSize, D, x, y, z, trX, trY, trZ, tetNo)
+F = ones(afmSize) * 3;
+F = permute(F, [3 2 1]);
+[Tvalue, Ttag, value_iter] = afmUpdateNeighborhoodTrial(Tvalue, Ttag, F, Boundary, dx, dy, dz, afmSize, D, x, y, z, trX, trY, trZ, tetNo)

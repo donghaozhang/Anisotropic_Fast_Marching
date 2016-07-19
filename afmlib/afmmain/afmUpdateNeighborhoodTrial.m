@@ -1,4 +1,4 @@
-function [Tvalue, Ttag, value_iter] = afmUpdateNeighborhoodTrial(Tvalue, Ttag, Boundary, dx, dy, dz, afmSize, D, x, y, z, trX, trY, trZ, tetNo)
+function [Tvalue, Ttag, value_iter] = afmUpdateNeighborhoodTrial(Tvalue, Ttag, F, Boundary, dx, dy, dz, afmSize, D, x, y, z, trX, trY, trZ, tetNo)
 % void UpdateNeighborhoodTrial( float*** Tvalue, 
 % 		int*** Ttag, float*** F, 
 % 		unsigned char*** Boundary, 
@@ -54,12 +54,6 @@ function [Tvalue, Ttag, value_iter] = afmUpdateNeighborhoodTrial(Tvalue, Ttag, B
 		% x = 23 test case
 		conditiontwo = x+trX(trNo,1)>=afmSize(1) || y+trY(trNo,1)>= afmSize(2) || z+trZ(trNo,1)>= afmSize(3);
 		conditionthree = (Boundary((z+trZ(trNo,1)), (y+trY(trNo,1)), (x+trX(trNo,1))) == 1);
-        (z+trZ(trNo,1));
-		(y+trY(trNo,1));
-		(x+trX(trNo,1));
-		indexxtemp = (x+trX(trNo,1));
-		indexytemp = (y+trY(trNo,1));
-		indexztemp = (z+trZ(trNo,1));
 		conditionfour = (Ttag((z+trZ(trNo,1)),(y+trY(trNo,1)),(x+trX(trNo,1))) ~= 200);
 
 		finalcondition = conditionone || conditiontwo || conditionthree || conditionfour;  
@@ -93,7 +87,8 @@ function [Tvalue, Ttag, value_iter] = afmUpdateNeighborhoodTrial(Tvalue, Ttag, B
 		end
 
 		%if both interest points are ok.
-		flaga = true; flagb = true; flagc = true;
+		% !!!!!!! delete the following line in the future
+		% flaga = true; flagb = true; flagc = true; %!!!!!!!!! delete it in the future
 		if(flaga && flagb && flagc)
 			% Kx = (p(1)*Ta/d_a + p(2)*Tb/d_b + p(3)*Tc/d_c)
 			% Ky = (q(1)*Ta/d_a + q(2)*Tb/d_b + q(3)*Tc/d_c)
@@ -110,11 +105,100 @@ function [Tvalue, Ttag, value_iter] = afmUpdateNeighborhoodTrial(Tvalue, Ttag, B
 			Cx = Cmat(1);
 			Cy = Cmat(2);
 			Cz = Cmat(3);
-			size(Cmat)
-			w1 = D[0,z,y,x]*pow(Cx,2) + D[3,z,y,x]*pow(Cy,2) + D[5,z,y,x]*pow(Cz,2) + 2*D[1,z,y,x]*Cx*Cy + 2*D[2,z,y,x]*Cx*Cz + 2*D[4][z][y][x]*Cy*Cz;
-			% Dhessianvec = [D(0,z,y,x), D(1,z,y,x), D(2,z,y,x), D(3,z,y,x), D(4,z,y,x), D(5,z,y,x)];
-			% DHmat = hessianvaluetomat(Dhessianvec);
+			% w1 = D(1,z,y,x)*(Cx^2) + D(4,z,y,x)*(Cy^2) + D(6,z,y,x)*(Cz^2) + 2*D(2,z,y,x)*Cx*Cy + 2*D(3,z,y,x)*Cx*Cz + 2*D(5,z,y,x)*Cy*Cz
+			Dhessianvec = [D(1,z,y,x), D(2,z,y,x), D(3,z,y,x), D(4,z,y,x), D(5,z,y,x), D(6,z,y,x)];
+			% Dhmat hessian mat
+			DHmat = hessianvaluetomat(Dhessianvec);
+			w1mat = Cmat' * DHmat * Cmat;
+			% w2 = -2*D(1,z,y,x)*Cx*Kx - 2*D(4,z,y,x)*Cy*Ky - 2*D(6,z,y,x)*Cz*Kz - 2*D(2,z,y,x)*Cx*Ky - 2*D(2,z,y,x)*Cy*Kx - 2*D(3,z,y,x)*Cx*Kz - 2*D(3,z,y,x)*Cz*Kx - 2*D(5,z,y,x)*Cy*Kz - 2*D(5,z,y,x)*Cz*Ky
+			w2mat = -2 * Kvec' * DHmat * Cmat;
+			% w3 = D(1,z,y,x)*(Kx^2) + D(4,z,y,x)*(Ky^2) + D(6,z,y,x)*(Kz^2) + 2*D(2,z,y,x)*Kx*Ky + 2*D(3,z,y,x)*Kx*Kz + 2*D(5,z,y,x)*Ky*Kz - 1/(F(z,y,x)^2)
+			w3mat = Kvec' * DHmat * Kvec;
+			[R, flag_imag] = afmfind_roots_indic(100 * w1mat, 100 * w2mat, 100 * w3mat);
+			if(~flag_imag && R(1) > 0)
+				% dT(1) = p(1)*(R(1) - Ta)/d_a + p(2)*(R(1) - Tb)/d_b + p(3)*(R(1) - Tc)/d_c;
+				% dT(2) = q(1)*(R(1) - Ta)/d_a + q(2)*(R(1) - Tb)/d_b + q(3)*(R(1) - Tc)/d_c;
+				% dT(3) = r(1)*(R(1) - Ta)/d_a + r(2)*(R(1) - Tb)/d_b + r(3)*(R(1) - Tc)/d_c;
+				dTVec = pqrmat *  (R(1) - [Ta; Tb; Tc]).*[1/d_a; 1/d_b; 1/d_c];
+				% dT
+				% dTVec
+				% d(1) = (D(1,z,y,x)*dTVec(1) + D(2,z,y,x)*dTVec(2) + D(3,z,y,x)*dTVec(3));
+				% d(2) = (D(2,z,y,x)*dTVec(1) + D(4,z,y,x)*dTVec(2) + D(5,z,y,x)*dTVec(3));
+				% d(3) = (D(3,z,y,x)*dTVec(1) + D(5,z,y,x)*dTVec(2) + D(6,z,y,x)*dTVec(3));
+				dmat = DHmat * dTVec;
+				% dir1 = (dmat(1)*(a(2)*b(3) - a(3)*b(2)) - dmat(2)*(a(1)*b(3) - a(3)*b(1)) + dmat(3)*(a(1)*b(2) - a(2)*b(1)))
+				dir1mat = dot(dmat', cross(a, b));  
+				% dir2 = (dmat(1)*(b(2)*c(3) - b(3)*c(2)) - dmat(2)*(b(1)*c(3) - b(3)*c(1)) + dmat(3)*(b(1)*c(2) - b(2)*c(1)))
+				dir2mat = dot(dmat', cross(b, c));
+				% dir3 = (dmat(1)*(c(2)*a(3) - c(3)*a(2)) - dmat(2)*(c(1)*a(3) - c(3)*a(1)) + dmat(3)*(c(1)*a(2) - c(2)*a(1)))
+				dir3mat = dot(dmat', cross(c, a));
+				conditionone = (afmsign(dir1mat)<0 && afmsign(dir2mat)<=0 && afmsign(dir3mat)<=0);
+				conditiontwo = (afmsign(dir1mat)<=0 && afmsign(dir2mat)<=0 && afmsign(dir3mat)<0);
+				conditionthree = (afmsign(dir1mat)<=0 && afmsign(dir2mat)<0 && afmsign(dir3mat)<=0);
+				conditionfour = true; 
+				if(conditionone || conditiontwo || conditionthree && conditionfour)
+					temp = afmmin(temp, R(1));
+					flag1 = true;
+				end
+			end
+			% R
+			if(~flag_imag && R(2) > 0)
+				% dT(1) = p(1)*(R(2) - Ta)/d_a + p(2)*(R(2) - Tb)/d_b + p(3)*(R(2) - Tc)/d_c;
+				% dT(2) = q(1)*(R(2) - Ta)/d_a + q(2)*(R(2) - Tb)/d_b + q(3)*(R(2) - Tc)/d_c;
+				% dT(3) = r(1)*(R(2) - Ta)/d_a + r(2)*(R(2) - Tb)/d_b + r(3)*(R(2) - Tc)/d_c
+				dTVec = pqrmat *  (R(2) - [Ta; Tb; Tc]).*[1/d_a; 1/d_b; 1/d_c];
+				% dT
+				% dTVec
+				% d(1) = (D(1,z,y,x)*dTVec(1) + D(2,z,y,x)*dTVec(2) + D(3,z,y,x)*dTVec(3));
+				% d(2) = (D(2,z,y,x)*dTVec(1) + D(4,z,y,x)*dTVec(2) + D(5,z,y,x)*dTVec(3));
+				% d(3) = (D(3,z,y,x)*dTVec(1) + D(5,z,y,x)*dTVec(2) + D(6,z,y,x)*dTVec(3));
+				dmat = DHmat * dTVec;
+				% dir1 = (dmat(1)*(a(2)*b(3) - a(3)*b(2)) - dmat(2)*(a(1)*b(3) - a(3)*b(1)) + dmat(3)*(a(1)*b(2) - a(2)*b(1)))
+				dir1mat = dot(dmat', cross(a, b));  
+				% dir2 = (dmat(1)*(b(2)*c(3) - b(3)*c(2)) - dmat(2)*(b(1)*c(3) - b(3)*c(1)) + dmat(3)*(b(1)*c(2) - b(2)*c(1)))
+				dir2mat = dot(dmat', cross(b, c));
+				% dir3 = (dmat(1)*(c(2)*a(3) - c(3)*a(2)) - dmat(2)*(c(1)*a(3) - c(3)*a(1)) + dmat(3)*(c(1)*a(2) - c(2)*a(1)))
+				dir3mat = dot(dmat', cross(c, a));
+				conditionone = (afmsign(dir1mat)<0 && afmsign(dir2mat)<=0 && afmsign(dir3mat)<=0);
+				conditiontwo = (afmsign(dir1mat)<=0 && afmsign(dir2mat)<=0 && afmsign(dir3mat)<0);
+				conditionthree = (afmsign(dir1mat)<=0 && afmsign(dir2mat)<0 && afmsign(dir3mat)<=0);
+				conditionfour = true; 
+				if(conditionone || conditiontwo || conditionthree && conditionfour)
+					temp = afmmin(temp, R(2));
+					flag2 = true;
+				end
+			end
 
+		end
+		
+		% if found roots are not useful. both flags should be false.
+		% fprintf('the value of flag1 is : %d the value of flag2 is : %d\n', flag1, flag2);
+		if( (~flag1 && ~flag2) || 1)
+			% all interest points are ok.
+			% fprintf('the value of flaga is : %d the value of flagb is : %d the value of flagc is : %d\n', flaga, flagb, flagc);
+			% flaga = false; flagb = true; flagc = false; % this line should be deleted in the future !!!!!!!
+			if(flaga && flagb && flagc) 
+				temp = afmmin(temp, afmminimize_Analytic2(Ta,Tb,x,y,z,D,a,b,F(z,y,x),d_a,d_b));
+				temp = afmmin(temp, afmminimize_Analytic2(Ta,Tc,x,y,z,D,a,c,F(z,y,x),d_a,d_c));
+				temp = afmmin(temp, afmminimize_Analytic2(Tb,Tc,x,y,z,D,b,c,F(z,y,x),d_b,d_c));
+				fprintf('true true true\n');
+			elseif(~flaga && flagb && flagc) % only two are ok.
+				temp = afmmin(temp, afmminimize_Analytic2(Tb,Tc,x,y,z,D,b,c,F(z,y,x),d_b,d_c));
+				fprintf('false true true\n');
+			elseif(flaga && ~flagb && flagc) % only two are ok.
+				temp = afmmin(temp, afmminimize_Analytic2(Ta,Tc,x,y,z,D,a,c,F(z,y,x),d_a,d_c));
+			elseif(flaga && flagb && ~flagc) % only two are ok.
+				temp = afmmin(temp, afmminimize_Analytic2(Ta,Tb,x,y,z,D,a,b,F(z,y,x),d_a,d_b));
+			elseif(flaga && ~flagb && ~flagc) % only one is ok.
+				vga = afmgroup_velocity(x,y,z,D,a',F(z,y,x));
+				temp = afmmin(temp, Ta+d_a/vga);
+			elseif(~flaga && flagb && ~flagc) % only one is ok.
+				vgb = afmgroup_velocity(x,y,z,D,b',F(z,y,x));
+				temp = afmmin(temp, Tb+d_b/vgb);
+			elseif(~flaga && ~flagb && flagc) % only one is ok.
+				vgc = afmgroup_velocity(x,y,z,D,c',F(z,y,x));	
+				temp = afmmin(temp, Tc+d_c/vgc);
+			end
 		end
 
 	end
