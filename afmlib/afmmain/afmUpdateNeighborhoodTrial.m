@@ -215,7 +215,7 @@ function [Tvalue, Ttag, value_iter] = afmUpdateNeighborhoodTrial(Tvalue, Ttag, F
 				% value_iter[z][y][x][0] = fm_map->trial.insert( make_pair(temp,index) );
 				trial(temp) = index;				
 				value_iter{z,y,x,1} = trial;
-				% fprintf('Stage One');
+				% fprintf('Stage One\n');
 			end
 		elseif( Ttag(z,y,x) == 125 ) % point is not in the good list but is in the bad list. REMOVE AND ADD TO THE GOOD LIST.
 			if( Tvalue(z,y,x) >= temp )
@@ -231,7 +231,7 @@ function [Tvalue, Ttag, value_iter] = afmUpdateNeighborhoodTrial(Tvalue, Ttag, F
 				value_iter{z,y,x,1} = trial;
 				Tvalue(z,y,x) = temp;
 				Ttag(z,y,x) = 175; % making good trial tag.
-				% fprintf('Stage Two');
+				% fprintf('Stage Two\n');
 			end
 		else % it is not in both lists
 			index = afmsub2ind(afmSize, x,y,z)
@@ -241,9 +241,49 @@ function [Tvalue, Ttag, value_iter] = afmUpdateNeighborhoodTrial(Tvalue, Ttag, F
 			% save('value_iter.mat', 'value_iter');
 			Tvalue(z,y,x) = temp;
 			Ttag(z,y,x) = 175; % good list trial number
-			% fprintf('Stage Three');
+			% fprintf('Stage Three\n');
 		end
 	end
+	temp2 = 555; %this line will be removed in the future 
+	if(temp2 ~= 5000)
+		% distance to trial lists.
+		if( Ttag(z,y,x) == 175 ) % point is alread in the good trial list. CHECK-REMOVE-UDPATE.
+			if(Tvalue(z,y,x) > temp2) % found a better candidate.
+				% removing from the good trial list.
+				viter = value_iter{z,y,x,1};
+				% fm_map->trial.erase(viter);
+				firstkey = viter{1};
+				remove(trial, firstkey);
+				% adding to the bad trial list.
+				index = afmsub2ind(afmSize,x,y,z);
+				% value_iter[z][y][x][1] = fm_map->trialC.insert( make_pair(temp2,index) ); % write the address
+				trialC(temp2) = index;
+				value_iter{z,y,x,2} = trialC;				
+				Tvalue(z,y,x) = temp2;
+				Ttag(z,y,x) = 125; % making bad trial tag.
+			end
+		elseif( Ttag(z,y,x) == 125 ) % not in the good list but in the bad list.
+			viter = value_iter{z,y,x,2};
+			firstkey = viter{1};
+			if(firstkey > temp2)
+				Tvalue(z,y,x) = temp2;
+				index = afmsub2ind(afmSize,x,y,z);
+				% fm_map->trialC.erase(viter);
+				remove(trialC, firstkey);
+				% value_iter[z][y][x][1] = fm_map->trialC.insert( make_pair(temp2,index) );
+				trialC(temp2) = index;
+				value_iter{z,y,x,2} = trialC;	
+			end
+		else % it is not in both lists
+			index = afmsub2ind(afmSize, x,y,z);
+			% value_iter[z,y,x,1] = fm_map->trialC.insert( make_pair(temp2,index) ); % write the address
+			trialC(temp2) = index;
+			value_iter{z,y,x,2} = trialC;	
+			Tvalue(z,y,x) = temp2;
+			Ttag(z,y,x) = 125; %  bad list trial number
+		end
+	end
+end
 
 % 	int trNo;
 % 	float a[3], b[3], c[3], Ta, Tb, Tc, p[3], q[3], 
@@ -548,7 +588,6 @@ function [Tvalue, Ttag, value_iter] = afmUpdateNeighborhoodTrial(Tvalue, Ttag, F
 
 
 % }
-	Tvalue = [];
-	Ttag = [];
-	value_iter = [];
-end
+	% Tvalue = [];
+	% Ttag = [];
+	% value_iter = [];
