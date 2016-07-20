@@ -1,4 +1,4 @@
-function [Tvalue, Ttag, value_iter] = afmUpdateNeighborhoodTrial(Tvalue, Ttag, F, Boundary, dx, dy, dz, afmSize, D, x, y, z, trX, trY, trZ, tetNo)
+function [Tvalue, Ttag, value_iter] = afmUpdateNeighborhoodTrial(Tvalue, Ttag, F, Boundary, dx, dy, dz, afmSize, D, x, y, z, trial, trialC, trX, trY, trZ, tetNo, value_iter)
 % void UpdateNeighborhoodTrial( float*** Tvalue, 
 % 		int*** Ttag, float*** F, 
 % 		unsigned char*** Boundary, 
@@ -202,6 +202,49 @@ function [Tvalue, Ttag, value_iter] = afmUpdateNeighborhoodTrial(Tvalue, Ttag, F
 		end
 
 	end
+	% temp = 555 % it will be removed in the future !!!!!!
+	if(temp ~= 5000)
+		if( Ttag(z,y,x) == 175 ) % point is already in the good trial list. UPDATE.
+			viter = value_iter{z,y,x,1};
+			firstkey = viter{1};
+			if( firstkey > temp )
+				Tvalue(z,y,x) = temp;
+				index = afmsub2ind(afmSize, x, y, z);
+				% fm_map->trial.erase( viter );
+				remove(trial, firstkey);
+				% value_iter[z][y][x][0] = fm_map->trial.insert( make_pair(temp,index) );
+				trial(temp) = index;				
+				value_iter{z,y,x,1} = trial;
+				% fprintf('Stage One');
+			end
+		elseif( Ttag(z,y,x) == 125 ) % point is not in the good list but is in the bad list. REMOVE AND ADD TO THE GOOD LIST.
+			if( Tvalue(z,y,x) >= temp )
+				% removing from the bad one.
+				viter = value_iter{z,y,x,2};	
+				% fm_map->trialC.erase( viter );
+				firstkey = viter{1};
+				remove(trialC, firstkey);
+				% adding to the good trial list
+				index = afmsub2ind(afmSize, x,y,z)
+				% value_iter[z,y,x,0] = fm_map->trial.insert(make_pair(temp,index)); %  write the address.
+				trialC(temp) = index;				
+				value_iter{z,y,x,1} = trial;
+				Tvalue(z,y,x) = temp;
+				Ttag(z,y,x) = 175; % making good trial tag.
+				% fprintf('Stage Two');
+			end
+		else % it is not in both lists
+			index = afmsub2ind(afmSize, x,y,z)
+			% value_iter[z][y][x][0] = fm_map->trial.insert( make_pair(temp,index) ); // write the address.
+			trial(temp) = index;
+			value_iter{z,y,x,1} = trial;
+			% save('value_iter.mat', 'value_iter');
+			Tvalue(z,y,x) = temp;
+			Ttag(z,y,x) = 175; % good list trial number
+			% fprintf('Stage Three');
+		end
+	end
+
 % 	int trNo;
 % 	float a[3], b[3], c[3], Ta, Tb, Tc, p[3], q[3], 
 % 				r[3], Cx, Cy, Cz, Kx, Ky, Kz, w1, w2, w3, R[2], 
