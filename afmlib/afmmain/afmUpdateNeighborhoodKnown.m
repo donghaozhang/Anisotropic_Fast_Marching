@@ -31,6 +31,7 @@ function [Tvalue, Ttag, value_iter] = afmUpdateNeighborhoodKnown(Tvalue, Ttag, F
 		% dist_updated_c = abs(c(1) - updatedDirection(1)) + abs(c(2) - updatedDirection(2)) + abs(c(3) - updatedDirection(3));
 		dist_updated_c_mat = sum(abs(c - updatedDirection));
 
+		% The following line should be commentted 
 		dist_updated_a_mat = 0; %This line will be removed in the future !!!!!!!
 		% !!!!!!!!! remove the above line in the future
 		% a = [1 3 4]; % test case will be removed in the future !!!!!!
@@ -58,6 +59,7 @@ function [Tvalue, Ttag, value_iter] = afmUpdateNeighborhoodKnown(Tvalue, Ttag, F
 			[p, q, r] = afmMatrixInverse3by3(a, b, c);
 			% cmat = c .* [dx/d_c dy/d_c dz/d_c] 
 			% MatrixInverse3by3(a,b,c,p,q,r);
+
 			conditionone = (x+trX(trNo,1))<1 || (y+trY(trNo,1))<1 || (z+trZ(trNo,1))<1;
 			conditiontwo = x+trX(trNo,1)>=afmSize(1) || y+trY(trNo,1)>=afmSize(2) || z+trZ(trNo,1)>=afmSize(3);
 			conditionthree = Boundary((z+trZ(trNo,1)),(y+trY(trNo,1)),(x+trX(trNo,1))) == 1;
@@ -71,13 +73,58 @@ function [Tvalue, Ttag, value_iter] = afmUpdateNeighborhoodKnown(Tvalue, Ttag, F
 			end
 
 			conditionone = x+trX(trNo,2)<0 || y+trY(trNo,2)<0 || z+trZ(trNo,2)<0;
-			conditiontwo = x+trX(trNo,2)>=Size[0] || y+trY(trNo,2)>=Size[1] || z+trZ(trNo,2)>=Size[2];
-			conditionthree = Boundary[(z+trZ[trNo][1])][(y+trY[trNo][1])][(x+trX[trNo][1])] == 1;
-			if( ||  ||  || Ttag[(unsigned short)(z+trZ[trNo][1])][(unsigned short)(y+trY[trNo][1])][(unsigned short)(x+trX[trNo][1])] != 200)
+			conditiontwo = x+trX(trNo,2)>=afmSize(1) || y+trY(trNo,2)>=afmSize(2) || z+trZ(trNo,2)>=afmSize(3);
+			conditionthree = Boundary((z+trZ(trNo,2)),(y+trY(trNo,2)),(x+trX(trNo,2))) == 1;
+			conditionfour = (Ttag((z+trZ(trNo,2)), (y+trY(trNo,2)), (x+trX(trNo,2)))) ~= 200;
+			conditionfinal = conditionone || conditiontwo || conditionthree || conditionfour; 
+			if(conditionfinal) 
 				flagb = false;
 				Tb = 5000;
 			else
-				Tb = Tvalue[(unsigned short)(z+trZ[trNo][1])][(unsigned short)(y+trY[trNo][1])][(unsigned short)(x+trX[trNo][1])];
+				Tb = Tvalue((z+trZ(trNo,2)),(y+trY(trNo,2)),(x+trX(trNo,2)));
+			end
+
+			conditionone = x+trX(trNo,3)<0 || y+trY(trNo,3)<0 || z+trZ(trNo,3)<0;
+			conditiontwo = x+trX(trNo,3)>=afmSize(1) || y+trY(trNo,3)>=afmSize(2) || z+trZ(trNo,3)>=afmSize(3);
+			conditionthree = Boundary((z+trZ(trNo,3)),(y+trY(trNo,3)),(x+trX(trNo,3))) == 1;
+			conditionfour = Ttag((z+trZ(trNo,3)),(y+trY(trNo,3)),(x+trX(trNo,3))) ~= 200;
+			conditionfinal = conditionone || conditiontwo ||  conditionthree || conditionfour;  
+			if(conditionfinal)
+				flagc = false;
+				Tc = 5000;
+			else
+				Tc = Tvalue((z+trZ(trNo,3)),(y+trY(trNo,3)),(x+trX(trNo,3)));
+			end
+
+			% if both interest points are ok.
+			flaga = true; flagb = true; flagc = true; %!!!!!! This line should be commented in the future
+			if(flaga && flagb && flagc)
+				% Kx = (p(1)*Ta/d_a + p(2)*Tb/d_b + p(3)*Tc/d_c);
+				% Ky = (q(1)*Ta/d_a + q(2)*Tb/d_b + q(3)*Tc/d_c);
+				% Kz = (r(1)*Ta/d_a + r(2)*Tb/d_b + r(3)*Tc/d_c);
+				% fprintf('The if statement has been called\n');
+				pqrmat = [p;q;r];
+				Kvec = pqrmat * [Ta/d_a; Tb/d_b; Tc/d_c];
+				Kx = Kvec(1);
+				Ky = Kvec(2);
+				Kz = Kvec(3);
+				% Cx = (p(1)/d_a + p(2)/d_b + p(3)/d_c);
+				% Cy = (q(1)/d_a + q(2)/d_b + q(3)/d_c);
+				% Cz = (r(1)/d_a + r(2)/d_b + r(3)/d_c);
+				Cmat = pqrmat * [1/d_a; 1/d_b; 1/d_c];
+				Cx = Cmat(1);
+				Cy = Cmat(2);
+				Cz = Cmat(3);
+
+				% w1 = D(1,z,y,x)*(Cx^2) + D(4,z,y,x)*(Cy^2) + D(6,z,y,x)*(Cz^2) + 2*D(2,z,y,x)*Cx*Cy + 2*D(3,z,y,x)*Cx*Cz + 2*D(5,z,y,x)*Cy*Cz
+				Dhessianvec = [D(1,z,y,x), D(2,z,y,x), D(3,z,y,x), D(4,z,y,x), D(5,z,y,x), D(6,z,y,x)];
+				DHmat = hessianvaluetomat(Dhessianvec);
+				w1mat = Cmat' * DHmat * Cmat;
+
+				% w2 = -2*D(1,z,y,x)*Cx*Kx - 2*D(4,z,y,x)*Cy*Ky - 2*D(6,z,y,x)*Cz*Kz - 2*D(2,z,y,x)*Cx*Ky - 2*D(2,z,y,x)*Cy*Kx - 2*D(3,z,y,x)*Cx*Kz - 2*D(3,z,y,x)*Cz*Kx - 2*D(5,z,y,x)*Cy*Kz - 2*D(5,z,y,x)*Cz*Ky
+				w2mat = -2 * Kvec' * DHmat * Cmat;
+
+				
 			end
 		end
 	end
