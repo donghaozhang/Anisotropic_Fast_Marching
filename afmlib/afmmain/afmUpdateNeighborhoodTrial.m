@@ -244,7 +244,7 @@ function [Tvalue, Ttag, value_iter] = afmUpdateNeighborhoodTrial(Tvalue, Ttag, F
 			% fprintf('Stage Three\n');
 		end
 	end
-	temp2 = 555; %this line will be removed in the future 
+	% temp2 = 555; %this line will be removed in the future 
 	if(temp2 ~= 5000)
 		% distance to trial lists.
 		if( Ttag(z,y,x) == 175 ) % point is alread in the good trial list. CHECK-REMOVE-UDPATE.
