@@ -115,16 +115,67 @@ function [Tvalue, Ttag, value_iter] = afmUpdateNeighborhoodKnown(Tvalue, Ttag, F
 				Cx = Cmat(1);
 				Cy = Cmat(2);
 				Cz = Cmat(3);
-
-				% w1 = D(1,z,y,x)*(Cx^2) + D(4,z,y,x)*(Cy^2) + D(6,z,y,x)*(Cz^2) + 2*D(2,z,y,x)*Cx*Cy + 2*D(3,z,y,x)*Cx*Cz + 2*D(5,z,y,x)*Cy*Cz
+				% D(1,z,y,x)=1.9; D(2,z,y,x)=4.45643; D(3,z,y,x)=1.56; D(4,z,y,x)=1132.898; D(5,z,y,x)=181; D(6,z,y,x)=9.789;
+				% D(1,z,y,x)=1; D(2,z,y,x)=4; D(3,z,y,x)=1; D(4,z,y,x)=1132; D(5,z,y,x)=181; D(6,z,y,x)=9;
+				% D(1,z,y,x)=134; D(2,z,y,x)=89; D(3,z,y,x)=1; D(4,z,y,x)=1132; D(5,z,y,x)=181; D(6,z,y,x)=9;
+				% w1 = D(1,z,y,x)*(Cx^2) + D(4,z,y,x)*(Cy^2) + D(6,z,y,x)*(Cz^2) + 2*D(2,z,y,x)*Cx*Cy + 2*D(3,z,y,x)*Cx*Cz + 2*D(5,z,y,x)*Cy*Cz;
+				
 				Dhessianvec = [D(1,z,y,x), D(2,z,y,x), D(3,z,y,x), D(4,z,y,x), D(5,z,y,x), D(6,z,y,x)];
 				DHmat = hessianvaluetomat(Dhessianvec);
+				% isreal(DHmat)
 				w1mat = Cmat' * DHmat * Cmat;
+				% w1 - w1mat;
 
-				% w2 = -2*D(1,z,y,x)*Cx*Kx - 2*D(4,z,y,x)*Cy*Ky - 2*D(6,z,y,x)*Cz*Kz - 2*D(2,z,y,x)*Cx*Ky - 2*D(2,z,y,x)*Cy*Kx - 2*D(3,z,y,x)*Cx*Kz - 2*D(3,z,y,x)*Cz*Kx - 2*D(5,z,y,x)*Cy*Kz - 2*D(5,z,y,x)*Cz*Ky
+				% w2 = -2*D(1,z,y,x)*Cx*Kx - 2*D(4,z,y,x)*Cy*Ky - 2*D(6,z,y,x)*Cz*Kz - 2*D(2,z,y,x)*Cx*Ky - 2*D(2,z,y,x)*Cy*Kx - 2*D(3,z,y,x)*Cx*Kz - 2*D(3,z,y,x)*Cz*Kx - 2*D(5,z,y,x)*Cy*Kz - 2*D(5,z,y,x)*Cz*Ky;
 				w2mat = -2 * Kvec' * DHmat * Cmat;
+				% w2mat = -2 * Cmat' * DHmat * Kvec
+				% w2 - w2mat;
 
+				% w3 = D(1,z,y,x)*(Kx*Kx) + D(4,z,y,x)*(Ky*Ky) + D(6,z,y,x)*(Kz*Kz) + 2*D(2,z,y,x)*Kx*Ky + 2*D(3,z,y,x)*Kx*Kz + 2*D(5,z,y,x)*Ky*Kz - 1/(F(z,y,x)^2);
+				% firstpartw3 = D(1,z,y,x)*(Kx*Kx) + D(4,z,y,x)*(Ky*Ky) + D(6,z,y,x)*(Kz*Kz);
 				
+				% Dafm = [D(1,z,y,x) D(2,z,y,x) D(3,z,y,x); D(2,z,y,x) D(4,z,y,x) D(5,z,y,x); D(3,z,y,x) D(5,z,y,x) D(6,z,y,x);];
+				% Dafm == DHmat
+				w3mat =  Kvec' * DHmat * Kvec - 1/(F(z,y,x)^2);
+				% testvec3 = [(D(1,z,y,x) * Kx + D(2,z,y,x) * Ky + D(3,z,y,x) * Kz), (D(2,z,y,x) * Kx + D(4,z,y,x) * Ky + D(5,z,y,x) * Kz), (D(3,z,y,x) * Kx + D(5,z,y,x) * Ky + D(6,z,y,x) * Kz)];				
+				% neww3mat = testvec3 * [Kx; Ky; Kz];% - 1/(F(z,y,x)^2);
+				% finaltest = testvec3(1) * Kx + testvec3(2) * Ky + testvec3(3) * Kz;	
+				% finaltesttwo = D(1,z,y,x) * Kx * Kx + D(2,z,y,x) * Kx * Ky + D(3,z,y,x) * Kx * Kz + D(2,z,y,x) * Kx * Ky + D(4,z,y,x) * Ky * Ky + D(5,z,y,x) * Ky * Kz + D(3,z,y,x) * Kx * Kz + D(5,z,y,x) * Ky * Kz + D(6,z,y,x) * Kz *Kz; 		
+				% firstpartfinaltesttwo = D(1,z,y,x) * (Kx * Kx) + D(4,z,y,x) * (Ky * Ky)  + D(6,z,y,x) * (Kz *Kz);
+
+				% testvec = [Kx Ky Kz] * Dafm;
+				% firstpartw3 - firstpartfinaltesttwo 
+				% testvec - testvec3
+				% w3 - neww3mat
+				% w3 - w3mat
+				% w3 - finaltest
+				% w3 - finaltesttwo
+				[R, flag_imag] = afmfind_roots_indic(100*w1mat, 100*w2mat, 100*w3mat);
+				% R
+				% doing the update regularly if the roots are ok.
+				if(~flag_imag && R(1) > 0)
+					% dT(1) = p(1)*(R(1) - Ta)/d_a + p(2)*(R(1) - Tb)/d_b + p(3)*(R(1) - Tc)/d_c;
+					% dT(2) = q(1)*(R(1) - Ta)/d_a + q(2)*(R(1) - Tb)/d_b + q(3)*(R(1) - Tc)/d_c;
+					% dT(3) = r(1)*(R(1) - Ta)/d_a + r(2)*(R(1) - Tb)/d_b + r(3)*(R(1) - Tc)/d_c;
+					dTVec = pqrmat *  (R(1) - [Ta; Tb; Tc]).*[1/d_a; 1/d_b; 1/d_c];
+
+					% d(1) = (D(1,z,y,x)*dTVec(1) + D(2,z,y,x)*dTVec(2) + D(3,z,y,x)*dTVec(3));
+					% d(2) = (D(2,z,y,x)*dTVec(1) + D(4,z,y,x)*dTVec(2) + D(5,z,y,x)*dTVec(3));
+					% d(3) = (D(3,z,y,x)*dTVec(1) + D(5,z,y,x)*dTVec(2) + D(6,z,y,x)*dTVec(3));
+					dmat = DHmat * dTVec;
+
+					% dir1 = (dmat(1)*(a(2)*b(3) - a(3)*b(2)) - dmat(2)*(a(1)*b(3) - a(3)*b(1)) + dmat(3)*(a(1)*b(2) - a(2)*b(1)));
+					dir1mat = dot(dmat', cross(a, b));
+					dir2 = (dmat(1)*(b(2)*c(3) - b(3)*c(2)) - dmat(2)*(b(1)*c(3) - b(3)*c(1)) + dmat(3)*(b(1)*c(2) - b(2)*c(1)))
+					dir2mat = dot(dmat', cross(b, c))
+					% dir3 = (d[0]*(c[1]*a[2] - c[2]*a[1]) - d[1]*(c[0]*a[2] - c[2]*a[0]) + d[2]*(c[0]*a[1] - c[1]*a[0]));
+
+					% if(( (sign(dir1)<0 && sign(dir2)<=0 && sign(dir3)<=0) || (sign(dir1)<=0 && sign(dir2)<=0 && sign(dir3)<0) || (sign(dir1)<=0 && sign(dir2)<0 && sign(dir3)<=0))&& 1)
+					% 	temp = min( temp,R[0] );
+					% 	flag1 = true;
+					% end
+				end 
+
 			end
 		end
 	end

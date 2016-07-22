@@ -109,7 +109,7 @@ function [Tvalue, Ttag, value_iter] = afmUpdateNeighborhoodTrial(Tvalue, Ttag, F
 			Dhessianvec = [D(1,z,y,x), D(2,z,y,x), D(3,z,y,x), D(4,z,y,x), D(5,z,y,x), D(6,z,y,x)];
 			% Dhmat hessian mat
 			DHmat = hessianvaluetomat(Dhessianvec);
-			w1mat = Cmat' * DHmat * Cmat;
+			w1mat = Cmat' * DHmat * Cmat - 1/(F(z,y,x)^2;
 			% w2 = -2*D(1,z,y,x)*Cx*Kx - 2*D(4,z,y,x)*Cy*Ky - 2*D(6,z,y,x)*Cz*Kz - 2*D(2,z,y,x)*Cx*Ky - 2*D(2,z,y,x)*Cy*Kx - 2*D(3,z,y,x)*Cx*Kz - 2*D(3,z,y,x)*Cz*Kx - 2*D(5,z,y,x)*Cy*Kz - 2*D(5,z,y,x)*Cz*Ky
 			w2mat = -2 * Kvec' * DHmat * Cmat;
 			% w3 = D(1,z,y,x)*(Kx^2) + D(4,z,y,x)*(Ky^2) + D(6,z,y,x)*(Kz^2) + 2*D(2,z,y,x)*Kx*Ky + 2*D(3,z,y,x)*Kx*Kz + 2*D(5,z,y,x)*Ky*Kz - 1/(F(z,y,x)^2)
