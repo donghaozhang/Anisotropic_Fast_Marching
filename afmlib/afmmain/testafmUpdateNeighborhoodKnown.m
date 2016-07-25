@@ -1,3 +1,5 @@
+clear all
+close all
 load('../../mat/diffussion.mat');
 x = 100; 
 y = 32;
@@ -17,10 +19,17 @@ Ttag = zeros(afmSize);
 Ttag = permute(Ttag, [3 2 1]);
 F = ones(afmSize) * 3;
 F = permute(F, [3 2 1]);
+
 keySet =   [1000000];
 valueSet = [327.2];
 trial = containers.Map(keySet,valueSet)
 trialC = containers.Map(keySet,valueSet)
 value_iter{afmSize(3), afmSize(2), afmSize(1), 2} = [];
+chKnownX = [];
+chKnownY = [];
+chKnownZ = [];
+changedKnownImage = ones(afmSize);
+changedKnownImage = permute(changedKnownImage, [3 2 1]);
+changedKnownImage = changedKnownImage > 2;
 updatedDirection = [1, -1, 1];
-[Tvalue, Ttag, value_iter] = afmUpdateNeighborhoodKnown(Tvalue, Ttag, F, Boundary, dx, dy, dz, afmSize, D, x, y, z, trial, trialC, trX, trY, trZ, tetNo, updatedDirection, value_iter);
+[Tvalue, chKnownX, chKnownY, chKnownZ, changedKnownImage] = afmUpdateNeighborhoodKnown(Tvalue, Ttag, F, Boundary, dx, dy, dz, afmSize, D, x, y, z, chKnownX, chKnownY, chKnownZ, trX, trY, trZ, tetNo, changedKnownImage, updatedDirection);

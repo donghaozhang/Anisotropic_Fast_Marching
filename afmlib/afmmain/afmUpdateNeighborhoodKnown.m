@@ -1,5 +1,5 @@
 %% afmUpdateNeighborhoodKnown: function description
-function [Tvalue, Ttag, value_iter] = afmUpdateNeighborhoodKnown(Tvalue, Ttag, F, Boundary, dx, dy, dz, afmSize, D, x, y, z, trial, trialC, trX, trY, trZ, tetNo, updatedDirection, value_iter)
+function [Tvalue, chKnownX, chKnownY, chKnownZ, changedKnownImage] = afmUpdateNeighborhoodKnown(Tvalue, Ttag, F, Boundary, dx, dy, dz, afmSize, D, x, y, z, chKnownX, chKnownY, chKnownZ, trX, trY, trZ, tetNo, changedKnownImage, updatedDirection)
 
 	temp = 5000; % used to find the minimum value in the trial list.
 	temp2 = 5000; % used to find the minimum value in the trialC list.
@@ -32,7 +32,7 @@ function [Tvalue, Ttag, value_iter] = afmUpdateNeighborhoodKnown(Tvalue, Ttag, F
 		dist_updated_c_mat = sum(abs(c - updatedDirection));
 
 		% The following line should be commentted 
-		dist_updated_a_mat = 0; %This line will be removed in the future !!!!!!!
+		% dist_updated_a_mat = 0; %This line will be removed in the future !!!!!!!
 		% !!!!!!!!! remove the above line in the future
 		% a = [1 3 4]; % test case will be removed in the future !!!!!!
 		% b = [2 4 5]; % test case will be removed in the future !!!!!!
@@ -166,22 +166,102 @@ function [Tvalue, Ttag, value_iter] = afmUpdateNeighborhoodKnown(Tvalue, Ttag, F
 
 					% dir1 = (dmat(1)*(a(2)*b(3) - a(3)*b(2)) - dmat(2)*(a(1)*b(3) - a(3)*b(1)) + dmat(3)*(a(1)*b(2) - a(2)*b(1)));
 					dir1mat = dot(dmat', cross(a, b));
-					dir2 = (dmat(1)*(b(2)*c(3) - b(3)*c(2)) - dmat(2)*(b(1)*c(3) - b(3)*c(1)) + dmat(3)*(b(1)*c(2) - b(2)*c(1)))
-					dir2mat = dot(dmat', cross(b, c))
-					% dir3 = (d[0]*(c[1]*a[2] - c[2]*a[1]) - d[1]*(c[0]*a[2] - c[2]*a[0]) + d[2]*(c[0]*a[1] - c[1]*a[0]));
+					% dir2 = (dmat(1)*(b(2)*c(3) - b(3)*c(2)) - dmat(2)*(b(1)*c(3) - b(3)*c(1)) + dmat(3)*(b(1)*c(2) - b(2)*c(1)))
+					dir2mat = dot(dmat', cross(b, c));
+					% dir3 = (dmat(1)*(c(2)*a(3) - c(3)*a(2)) - dmat(2)*(c(1)*a(3) - c(3)*a(1)) + dmat(3)*(c(1)*a(2) - c(2)*a(1)));
+					dir3mat = dot(dmat', cross(c, a));
 
-					% if(( (sign(dir1)<0 && sign(dir2)<=0 && sign(dir3)<=0) || (sign(dir1)<=0 && sign(dir2)<=0 && sign(dir3)<0) || (sign(dir1)<=0 && sign(dir2)<0 && sign(dir3)<=0))&& 1)
-					% 	temp = min( temp,R[0] );
-					% 	flag1 = true;
-					% end
+					conditionone = (afmsign(dir1mat)<0 && afmsign(dir2mat)<=0 && afmsign(dir3mat)<=0);
+					conditiontwo = (afmsign(dir1mat)<=0 && afmsign(dir2mat)<=0 && afmsign(dir3mat)<0);
+					conditionthree = (afmsign(dir1mat)<=0 && afmsign(dir2mat)<0 && afmsign(dir3mat)<=0);
+					conditionfour = true; 
+					if(conditionone || conditiontwo || conditionthree && conditionfour)
+						temp = afmmin(temp, R(1));
+						flag1 = true;
+					end
+				end
+
+				if(~flag_imag && R(2) > 0)
+					% dT(1) = p(1)*(R(2) - Ta)/d_a + p(2)*(R(2) - Tb)/d_b + p(3)*(R(2) - Tc)/d_c;
+					% dT(2) = q(1)*(R(2) - Ta)/d_a + q(2)*(R(2) - Tb)/d_b + q(3)*(R(2) - Tc)/d_c;
+					% dT(3) = r(1)*(R(2) - Ta)/d_a + r(2)*(R(2) - Tb)/d_b + r(3)*(R(2) - Tc)/d_c;
+					dTVec = pqrmat *  (R(2) - [Ta; Tb; Tc]).*[1/d_a; 1/d_b; 1/d_c];
+
+					% d(1) = (D(1,z,y,x)*dTVec(1) + D(2,z,y,x)*dTVec(2) + D(3,z,y,x)*dTVec(3));
+					% d(2) = (D(2,z,y,x)*dTVec(1) + D(4,z,y,x)*dTVec(2) + D(5,z,y,x)*dTVec(3));
+					% d(3) = (D(3,z,y,x)*dTVec(1) + D(5,z,y,x)*dTVec(2) + D(6,z,y,x)*dTVec(3));
+					dmat = DHmat * dTVec;
+					
+					% dir1 = (dmat(1)*(a(2)*b(3) - a(3)*b(2)) - dmat(2)*(a(1)*b(3) - a(3)*b(1)) + dmat(3)*(a(1)*b(2) - a(2)*b(1)));
+					dir1mat = dot(dmat', cross(a, b));  
+					% dir2 = (dmat(1)*(b(2)*c(3) - b(3)*c(2)) - dmat(2)*(b(1)*c(3) - b(3)*c(1)) + dmat(3)*(b(1)*c(2) - b(2)*c(1)))
+					dir2mat = dot(dmat', cross(b, c));
+					% dir3 = (dmat(1)*(c(2)*a(3) - c(3)*a(2)) - dmat(2)*(c(1)*a(3) - c(3)*a(1)) + dmat(3)*(c(1)*a(2) - c(2)*a(1)));
+					dir3mat = dot(dmat', cross(c, a));
+
+					conditionone = (afmsign(dir1mat)<0 && afmsign(dir2mat)<=0 && afmsign(dir3mat)<=0);
+					conditiontwo = (afmsign(dir1mat)<=0 && afmsign(dir2mat)<=0 && afmsign(dir3mat)<0);
+					conditionthree = (afmsign(dir1mat)<=0 && afmsign(dir2mat)<0 && afmsign(dir3mat)<=0);
+					conditionfour = true;
+					conditionfinal = conditionone || conditiontwo || conditionthree && conditionfour;  
+					if(conditionfinal)
+						temp = afmmin(temp, R(2));
+						flag2 = true;
+					end
 				end 
 
 			end
+
+			% if found roots are not useful. both flags should be false.
+			if( (~flag1 && ~flag2) || 1)
+				if(flaga && flagb && flagc) % all interest points are ok.
+					temp = afmmin(temp, afmminimize_Analytic2(Ta,Tb,x,y,z,D,a,b,F(z,y,x),d_a,d_b));
+					temp = afmmin(temp, afmminimize_Analytic2(Ta,Tc,x,y,z,D,a,c,F(z,y,x),d_a,d_c));
+					temp = afmmin(temp, afmminimize_Analytic2(Tb,Tc,x,y,z,D,b,c,F(z,y,x),d_b,d_c));
+				elseif(~flaga && flagb && flagc) % only two are ok.
+					temp = afmmin(temp, afmminimize_Analytic2(Tb,Tc,x,y,z,D,b,c,F(z,y,x),d_b,d_c));
+				elseif(flaga && ~flagb && flagc) % only two are ok.
+					temp = afmmin(temp, afmminimize_Analytic2(Ta,Tc,x,y,z,D,a,c,F(z,y,x),d_a,d_c));
+				elseif(flaga && flagb && ~flagc) % only two are ok.
+					temp = afmmin(temp, afmminimize_Analytic2(Ta,Tb,x,y,z,D,a,b,F(z,y,x),d_a,d_b));
+				elseif(flaga && ~flagb && ~flagc) % only one is ok.
+					vga = afmgroup_velocity(x,y,z,D,a,F(z,y,x));
+					temp = afmmin(temp, Ta+d_a/vga);
+				elseif(~flaga && flagb && ~flagc) % only one is ok.
+					vgb = afmgroup_velocity(x,y,z,D,b,F(z,y,x));
+					temp = afmmin(temp, Tb+d_b/vgb);
+				elseif(~flaga && ~flagb && flagc) % only one is ok.
+					vgc = afmgroup_velocity(x,y,z,D,c,F(z,y,x));	
+					temp = afmmin(temp, Tc+d_c/vgc);
+				end
+			end
 		end
 	end
-Tvalue = [];
-Ttag = [];
-value_iter = [];
+	% temp = 3 % will be removed in the future !!!!!! test case danger
+	% Tvalue(z,y,x) = 4;!!!!!!!!! test case danger
+	if( (temp + Tvalue(z,y,x)/2500) < Tvalue(z,y,x) && temp > 0) %  found a smaller value
+		if(temp < 0)
+			fprintf('Dude something is negative check the speed file\n');
+			return;
+		end
+		Tvalue(z,y,x) = temp;
+
+		if(~changedKnownImage(z,y,x)) % not in the changed known list. ADD IT.
+			chKnownX(end+1) = x;
+			chKnownY(end+1) = y;
+			chKnownZ(end+1) = z;
+			changedKnownImage(z,y,x) = true;
+		end
+	end
+	if(temp2 + Tvalue(z,y,x)/2500 < Tvalue(z,y,x)) % found a smaller value
+		Tvalue(z,y,x) = temp2;
+		if(~changedKnownImage(z,y,x)) % not in the changed known list. ADD IT.
+			chKnownX(end+1) = x; 
+			chKnownY(end+1) = y;
+			chKnownZ(end+1) = z;
+			changedKnownImage(z,y,x) = true;
+		end
+	end
 end
 
 % void UpdateNeighborhoodKnown( float*** Tvalue, int*** Ttag,
