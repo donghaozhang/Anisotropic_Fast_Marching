@@ -1,4 +1,4 @@
-function [Tvalue, Ttag, value_iter] = afmUpdateNeighborhoodTrial(Tvalue, Ttag, F, Boundary, dx, dy, dz, afmSize, D, x, y, z, trial, trialC, trX, trY, trZ, tetNo, value_iter)
+function [Tvalue, Ttag, value_iter, trial, trialC] = afmUpdateNeighborhoodTrial(Tvalue, Ttag, F, Boundary, dx, dy, dz, afmSize, D, x, y, z, trial, trialC, trX, trY, trZ, tetNo, value_iter)
 % void UpdateNeighborhoodTrial( float*** Tvalue, 
 % 		int*** Ttag, float*** F, 
 % 		unsigned char*** Boundary, 
@@ -10,7 +10,7 @@ function [Tvalue, Ttag, value_iter] = afmUpdateNeighborhoodTrial(Tvalue, Ttag, F
 % 		multimap<float,long>::iterator**** value_iter)
 % {
 
-	fprintf('afmUpdateNeighborhoodTrial function is created\n');
+	fprintf('afmUpdateNeighborhoodTrial function has been called\n');
 
 % 	float temp = 5000; // used to find the minimum value in the trial list.
 % 	float temp2 = 5000; // used to find the minimum value in the trialC list.
@@ -89,6 +89,7 @@ function [Tvalue, Ttag, value_iter] = afmUpdateNeighborhoodTrial(Tvalue, Ttag, F
 		%if both interest points are ok.
 		% !!!!!!! delete the following line in the future
 		% flaga = true; flagb = true; flagc = true; %!!!!!!!!! delete it in the future
+		% fprintf('Both interest points are ok\n');
 		if(flaga && flagb && flagc)
 			% Kx = (p(1)*Ta/d_a + p(2)*Tb/d_b + p(3)*Tc/d_c)
 			% Ky = (q(1)*Ta/d_a + q(2)*Tb/d_b + q(3)*Tc/d_c)
@@ -234,7 +235,7 @@ function [Tvalue, Ttag, value_iter] = afmUpdateNeighborhoodTrial(Tvalue, Ttag, F
 				% fprintf('Stage Two\n');
 			end
 		else % it is not in both lists
-			index = afmsub2ind(afmSize, x,y,z)
+			index = afmsub2ind(afmSize, x,y,z);
 			% value_iter[z][y][x][0] = fm_map->trial.insert( make_pair(temp,index) ); // write the address.
 			% This line will be revised in the future
             temp = real(temp);
@@ -254,7 +255,7 @@ function [Tvalue, Ttag, value_iter] = afmUpdateNeighborhoodTrial(Tvalue, Ttag, F
 				% removing from the good trial list.
 				viter = value_iter{z,y,x,1};
 				% fm_map->trial.erase(viter);
-				firstkey = viter{1};
+				firstkey = viter{1}
 				remove(trial, firstkey);
 				% adding to the bad trial list.
 				index = afmsub2ind(afmSize,x,y,z);

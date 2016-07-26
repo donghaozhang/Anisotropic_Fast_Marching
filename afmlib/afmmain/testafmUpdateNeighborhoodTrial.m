@@ -22,4 +22,4 @@ valueSet = [327.2];
 trial = containers.Map(keySet,valueSet)
 trialC = containers.Map(keySet,valueSet)
 value_iter{afmSize(3), afmSize(2), afmSize(1), 2} = [];
-[Tvalue, Ttag, value_iter] = afmUpdateNeighborhoodTrial(Tvalue, Ttag, F, Boundary, dx, dy, dz, afmSize, D, x, y, z, trial, trialC, trX, trY, trZ, tetNo, value_iter);
+[Tvalue, Ttag, value_iter, trial, trialC] = afmUpdateNeighborhoodTrial(Tvalue, Ttag, F, Boundary, dx, dy, dz, afmSize, D, x, y, z, trial, trialC, trX, trY, trZ, tetNo, value_iter);

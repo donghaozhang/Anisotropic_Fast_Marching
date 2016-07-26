@@ -22,7 +22,7 @@ timeLimit = 10000;
 fprintf('Constructing volumes...\n');
 D =  permute(T, [4 3 2 1]);
 FO = zeros(afmSize(3), afmSize(2), afmSize(1));
-FO(13, 32, 100) = 1;  
+FO(20, 54, 120) = 1;  
 for(z = 1 : afmSize(3))
 	% fprintf('after constructing volumes Current z value: %d\n', z);
 	for(y = 1 : afmSize(2))

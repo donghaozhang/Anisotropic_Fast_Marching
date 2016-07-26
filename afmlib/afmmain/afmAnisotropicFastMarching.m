@@ -30,6 +30,7 @@ fprintf('afmAnisotropicFastMarching function has been called\n');
 	value_iter{afmSize(3), afmSize(2), afmSize(1), 2} = [];
 	knownChangedImage = ones(afmSize);
 	knownChangedImage = permute(knownChangedImage, [3 2 1]);
+	knownChangedImage = knownChangedImage > 2;
 	% creating the tetrahedra points.
 	% SetTetrahedra(trX, trY, trZ);
 	[trX, trY, trZ] =  afmSetTetrahedra();
@@ -49,8 +50,11 @@ fprintf('afmAnisotropicFastMarching function has been called\n');
 				    	conditionthree = Ttag(z,y,x) ~= 200;
 				    	conditionfinal = conditionone && conditiontwo && conditionthree;   
 				    	if(conditionfinal)
-							fprintf('afmSize(1) is : %d afmSize(2) is : %d afmSize(3) is %d\n', afmSize(1), afmSize(2), afmSize(3));		  
-							[Tvalue, Ttag, value_iter] = afmUpdateNeighborhoodTrial(Tvalue, Ttag, F, Boundary, dx, dy, dz, afmSize, D, x, y, z, trial, trialC, trX, trY, trZ, 8, value_iter);
+							% fprintf('afmSize(1) is : %d afmSize(2) is : %d afmSize(3) is %d\n', afmSize(1), afmSize(2), afmSize(3));
+							% fprintf('Before updating UpdateNeighborhoodTrial function is called\n');
+							fprintf('x : %d y : %d z : %d\n', x, y, z);
+							[Tvalue, Ttag, value_iter, trial, trialC] = afmUpdateNeighborhoodTrial(Tvalue, Ttag, F, Boundary, dx, dy, dz, afmSize, D, x, y, z, trial, trialC, trX, trY, trZ, 8, value_iter);
+							% fprintf('After updating UpdateNeighborhoodTrial function is called\n');
 						end
 		    		end
 				end
@@ -67,7 +71,11 @@ fprintf('afmAnisotropicFastMarching function has been called\n');
 	chKnownX = [];
 	chKnownY = [];
 	chKnownZ = [];
+	% The following variable is just for defining loop iterations
+	mainloopcounter = 1;
 	while(size(trial,1) ~= 0 || size(trialC,1) ~= 0 || (numel(chKnownX) ~= 0) && ~limitReached)
+		mainloopcounter = mainloopcounter + 1;
+		fprintf('Main loop iteration %d\n', mainloopcounter);
     	if(numel(chKnownX) == 0)
 			if(size(trial,1) ~= 0) % make the minimum element known.
 		    	% finding the minimum element in the good list.
@@ -129,7 +137,7 @@ fprintf('afmAnisotropicFastMarching function has been called\n');
 		end
     	% time(&endKnown);
     	printknown = toc(Knowntime);
-    	fprintf('The each cycle of known time is counted as %d seconds \n', printknown);
+    	% fprintf('The each cycle of known time is counted as %d seconds \n', printknown);
     	% t_updateKnown = t_updateKnown + difftime( endKnown,startKnown );
 		%//////////////////////////////////////////////
 		%// ADDING NEW TRIAL POINTS //
@@ -144,7 +152,7 @@ fprintf('afmAnisotropicFastMarching function has been called\n');
 		    end
 		end
 		printtrial = toc(Trialtime);
-		fprintf('The each cycle of trial time is counted as %d seconds \n', printtrial);
+		% fprintf('The each cycle of trial time is counted as %d seconds \n', printtrial);
 		t_updateKnown = t_updateKnown + printknown;
 		t_updateTrial = t_updateTrial + printtrial;
     	%time(&endTrial);
