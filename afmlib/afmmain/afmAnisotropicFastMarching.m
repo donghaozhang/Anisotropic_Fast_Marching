@@ -2,10 +2,10 @@ function fakeoutput = afmAnisotropicFastMarching(Tvalue, Ttag, F, Boundary, dx, 
 % trial list holds the right trial values.
 % trialC list holds the values calculated from the group velocity stuff.
 % chKnown list holds the known points whose value have changed during iterations.
-keySet =   [1000000];
+keySet =   [9999];
 valueSet = [327.2];
-trial = containers.Map(keySet,valueSet)
-trialC = containers.Map(keySet,valueSet)
+trial = containers.Map(keySet,valueSet);
+trialC = containers.Map(keySet,valueSet);
 N = 0;
 fprintf('afmAnisotropicFastMarching function has been called\n');
 %The following code creates multidimensional cell of value_iter
@@ -61,75 +61,83 @@ fprintf('afmAnisotropicFastMarching function has been called\n');
 
 	% NOT TO MAKE THE UNNECESSARY SIMULATIONS
 	limitReached = false;
-	while((fm_map->trial.size() ~= 1 || fm_map->trialC.size() != 1 || numel(chKnownX) != 0) && !limitReached)
-    	if(fm_map->chKnownX.size() == 0)
-			if(fm_map->trial.size() != 0) // make the minimum element known.
+	while(size(trial,1) ~= 0 || size(trialC,1) ~= 0 || numel(chKnownX) ~= 0) && ~limitReached)
+    	if(numel(chKnownX) == 0)
+			if(size(trial,1) ~= 0) // make the minimum element known.
 		    	% finding the minimum element in the good list.
-		    	index = (fm_map->trial.begin())->second;
-		    	ind2sub( posx, posy, posz, (double)index, Size );
-		    	i = lround(*posx);
-		    	j = lround(*posy);
-		    	k = lround(*posz);
+		    	afmindex = (fm_map->trial.begin())->second;
+				pos = afmind2sub(afmsize, afmindex);
+				posx = pos.x;
+				posy = pos.y;
+				posz = pos.z;
 		    	% make the point known and remove it from the good list.
-		    	Ttag[k][j][i] = 200;
+		    	Ttag(k,j,i) = 200;
 		    	fm_map->trial.erase( fm_map->trial.begin() );
 		    % NOT TO MAKE THE UNNECESSARY SIMULATIONS.
-			    if(Tvalue[k][j][i] >= timeLimit)
+			    if(Tvalue(k,j,i) >= timeLimit)
 					limitReached=true;
 				end
 			else % the good list is empty. make the minimum element known. 
 				% find the minimum element in the bad list.
-				index = (fm_map->trialC.begin())->second;
-				ind2sub( posx, posy, posz, (double)index, Size );
-				i = lround(*posx);
-				j = lround(*posy);
-				k = lround(*posz);
+				afmindex = (fm_map->trialC.begin())->second;
+				pos = afmind2sub(afmsize, afmindex);
+				posx = pos.x;
+				posy = pos.y;
+				posz = pos.z;
+				i = afmlround(posx);
+				j = afmlround(posy);
+				k = afmlround(posz);
 				% make the point known and remove it from the bad list.
-				Ttag[k][j][i] = 200;
+				Ttag(k,j,i) = 200;
 				fm_map->trialC.erase( fm_map->trialC.begin() );
     	else % recursive correction of known points.
-			i = *(fm_map->chKnownX.begin());
-			j = *(fm_map->chKnownY.begin());
-			k = *(fm_map->chKnownZ.begin());
-			fm_map->chKnownX.erase(fm_map->chKnownX.begin());
-			fm_map->chKnownY.erase(fm_map->chKnownY.begin());
-			fm_map->chKnownZ.erase(fm_map->chKnownZ.begin());
-			knownChangedImage[k][j][i] = false; // removed
+			i = chKnownX(1);
+			j = chKnownY(1);
+			k = chKnownZ(1);
+			chKnownX(1) = [];
+			chKnownY(1) = [];
+			chKnownZ(1) = [];
+			knownChangedImage(k,j,i) = false; % removed
 		end
       
-    % RECURSIVE CORRECTION OF THE KNOWN POINTS //
-    % time(&startKnown);
-    Knowntime = tic;
-    for(yonNo=0;yonNo<6;yonNo++) // looking at all directions during fast marching.
-		x = (int)(i - yon[yonNo][0]);
-		y = (int)(j - yon[yonNo][1]);
-		z = (int)(k - yon[yonNo][2]);
-		if( x>=0 && x<Size[0] && y>=0 && y<Size[1] && z>=0 && z<Size[2] && Boundary[z][y][x] == 0 && Ttag[z][y][x] == 200 ) // inside the domain and known
-			updatedDirection[0] = -yon[yonNo][0]; // from (x,y,z) to (i,j,k)
-			updatedDirection[1] = -yon[yonNo][1];
-			updatedDirection[2] = -yon[yonNo][2];
-			UpdateNeighborhoodKnown( Tvalue, Ttag, F, Boundary, dx, dy, dz, Size, D, x, y, z, fm_map, trX, trY, trZ, 8, knownChangedImage, updatedDirection );
+		% RECURSIVE CORRECTION OF THE KNOWN POINTS //
+		% time(&startKnown);
+		Knowntime = tic;
+		for yonNo=1:6 % looking at all directions during fast marching.
+			x = i - yon(yonNo,1);
+			y = j - yon(yonNo,2);
+			z = k - yon(yonNo,3);
+			if( x>=1 && x<afmSize(1) && y>=1 && y<afmSize(2) && z>=1 && z<afmSize(3) && Boundary(z,y,x) == 0 && Ttag[z][y][x] == 200 ) % inside the domain and known
+				updatedDirection(1) = -yon(yonNo,1); % from (x,y,z) to (i,j,k)
+				updatedDirection(2) = -yon(yonNo,2);
+				updatedDirection(3) = -yon(yonNo,3);
+				UpdateNeighborhoodKnown(Tvalue, Ttag, F, Boundary, dx, dy, dz, Size, D, x, y, z, fm_map, trX, trY, trZ, 8, knownChangedImage, updatedDirection);
+			end
 		end
-	end
     	% time(&endKnown);
     	printknown = toc(Knowntime);
-    	fprintf('The known time is %d seconds \n', printknown);
+    	fprintf('The each cycle of known time is counted as %d seconds \n', printknown);
     	% t_updateKnown = t_updateKnown + difftime( endKnown,startKnown );
 		%//////////////////////////////////////////////
 		%// ADDING NEW TRIAL POINTS //
 		%time( &startTrial );
 		Trialtime = tic;
-	    for(yonNo=0;yonNo<6;yonNo++)
-			x = (int)(i - yon[yonNo][0]);
-			y = (int)(j - yon[yonNo][1]);
-			z = (int)(k - yon[yonNo][2]);
-			if( x>=0 && x<Size[0] && y>=0 && y<Size[1] && z>=0 && z<Size[2] && Boundary[z][y][x] == 0 && Ttag[z][y][x] != 200 )
-		    	UpdateNeighborhoodTrial(Tvalue, Ttag, F, Boundary, dx, dy, dz, Size, D, x, y, z, fm_map, trX, trY, trZ, 8, value_iter );
+	    for yonNo=1:6
+			x = i - yon(yonNo,1);
+			y = j - yon(yonNo,2);
+			z = k - yon(yonNo,3);
+			if(x>=1 && x<afmSize(1) && y>=1 && y<afmSize(2) && z>=1 && z<afmSize(3) && Boundary(z,y,x) == 0 && Ttag(z,y,x) ~= 200)
+		    	[Tvalue, Ttag, value_iter] = afmUpdateNeighborhoodTrial(Tvalue, Ttag, F, Boundary, dx, dy, dz, afmSize, D, x, y, z, trial, trialC, trX, trY, trZ, 8, value_iter);
 		    end
 		end
+		printtrial = toc(Trialtime);
+		fprintf('The each cycle of trial time is counted as %d seconds \n', printtrial);
+		t_updateKnown = t_updateKnown + printknown;
+		t_updateTrial = t_updateTrial + printtrial;
     	%time(&endTrial);
     	%t_updateTrial = t_updateTrial + difftime( endTrial, startTrial );
     	% /////////////////////////////
+
     end
 fakeoutput = []
 end

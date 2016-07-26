@@ -37,4 +37,16 @@ for(z = 1 : afmSize(3))
         end
     end
 end
-fakeoutput = afmAnisotropicFastMarching(Tval, Ttag, F, Boundary, dx, dy, dz, afmSize, D, timeLimit);
+[Tval, Ttag] = afmAnisotropicFastMarching(Tval, Ttag, F, Boundary, dx, dy, dz, afmSize, D, timeLimit);
+
+	% /* Assigning the output */
+	% for (int z = 0; z < dimV[2]; z++)
+	% 	for (int y = 0; y < dimV[1]; y++)
+	% 		for (int x = 0; x < dimV[0]; x++)
+	% 		{
+	% 			index = x + y * dimV[0] + z * dimV[0] * dimV[1];
+	% 			if (Ttag[z][y][x] == 200 && (unsigned char)FO[index] == 0)
+	% 				OI[index] = (double)Tval[z][y][x];
+	% 			else
+	% 				OI[index] = -1.0f;
+	% 		}
