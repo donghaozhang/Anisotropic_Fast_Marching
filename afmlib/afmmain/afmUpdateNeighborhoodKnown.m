@@ -1,6 +1,6 @@
 %% afmUpdateNeighborhoodKnown: function description
 function [Tvalue, chKnownX, chKnownY, chKnownZ, changedKnownImage] = afmUpdateNeighborhoodKnown(Tvalue, Ttag, F, Boundary, dx, dy, dz, afmSize, D, x, y, z, chKnownX, chKnownY, chKnownZ, trX, trY, trZ, tetNo, changedKnownImage, updatedDirection)
-
+	fprintf('afmUpdateNeighborhoodKnown function has been called\n');
 	temp = 5000; % used to find the minimum value in the trial list.
 	temp2 = 5000; % used to find the minimum value in the trialC list.
 	temp = Tvalue(z,y,x);

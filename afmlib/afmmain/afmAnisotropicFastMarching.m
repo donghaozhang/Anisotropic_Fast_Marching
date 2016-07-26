@@ -1,4 +1,4 @@
-function fakeoutput = afmAnisotropicFastMarching(Tvalue, Ttag, F, Boundary, dx, dy, dz, afmSize, D, timeLimit)
+function [Tvalue, Ttag] = afmAnisotropicFastMarching(Tvalue, Ttag, F, Boundary, dx, dy, dz, afmSize, D, timeLimit)
 % trial list holds the right trial values.
 % trialC list holds the values calculated from the group velocity stuff.
 % chKnown list holds the known points whose value have changed during iterations.
@@ -6,6 +6,8 @@ keySet =   [9999];
 valueSet = [327.2];
 trial = containers.Map(keySet,valueSet);
 trialC = containers.Map(keySet,valueSet);
+remove(trial, 9999);
+remove(trialC, 9999);
 N = 0;
 fprintf('afmAnisotropicFastMarching function has been called\n');
 %The following code creates multidimensional cell of value_iter
@@ -61,25 +63,33 @@ fprintf('afmAnisotropicFastMarching function has been called\n');
 
 	% NOT TO MAKE THE UNNECESSARY SIMULATIONS
 	limitReached = false;
-	while(size(trial,1) ~= 0 || size(trialC,1) ~= 0 || numel(chKnownX) ~= 0) && ~limitReached)
+	% The following line initialise three vectors which are chKnownX, chKnownY, chKnownZ
+	chKnownX = [];
+	chKnownY = [];
+	chKnownZ = [];
+	while(size(trial,1) ~= 0 || size(trialC,1) ~= 0 || (numel(chKnownX) ~= 0) && ~limitReached)
     	if(numel(chKnownX) == 0)
-			if(size(trial,1) ~= 0) // make the minimum element known.
+			if(size(trial,1) ~= 0) % make the minimum element known.
 		    	% finding the minimum element in the good list.
-		    	afmindex = (fm_map->trial.begin())->second;
-				pos = afmind2sub(afmsize, afmindex);
+		    	valuestrial = values(trial);
+				afmindex = valuestrial{1};
+				pos = afmind2sub(afmSize, afmindex);
 				posx = pos.x;
 				posy = pos.y;
 				posz = pos.z;
 		    	% make the point known and remove it from the good list.
 		    	Ttag(k,j,i) = 200;
-		    	fm_map->trial.erase( fm_map->trial.begin() );
+		    	keystrial = keys(trial);
+				firstkey = keystrial{1};
+				remove(trial, firstkey); 
 		    % NOT TO MAKE THE UNNECESSARY SIMULATIONS.
 			    if(Tvalue(k,j,i) >= timeLimit)
 					limitReached=true;
 				end
 			else % the good list is empty. make the minimum element known. 
 				% find the minimum element in the bad list.
-				afmindex = (fm_map->trialC.begin())->second;
+				valuestrialC = values(trialC);
+				afmindex = valuestrialC{1};
 				pos = afmind2sub(afmsize, afmindex);
 				posx = pos.x;
 				posy = pos.y;
@@ -89,7 +99,10 @@ fprintf('afmAnisotropicFastMarching function has been called\n');
 				k = afmlround(posz);
 				% make the point known and remove it from the bad list.
 				Ttag(k,j,i) = 200;
-				fm_map->trialC.erase( fm_map->trialC.begin() );
+				keystrialC = keys(trialC);
+				firstkey = keystrialC{1};
+				remove(trialC, firstkey);
+            end
     	else % recursive correction of known points.
 			i = chKnownX(1);
 			j = chKnownY(1);
@@ -107,11 +120,11 @@ fprintf('afmAnisotropicFastMarching function has been called\n');
 			x = i - yon(yonNo,1);
 			y = j - yon(yonNo,2);
 			z = k - yon(yonNo,3);
-			if( x>=1 && x<afmSize(1) && y>=1 && y<afmSize(2) && z>=1 && z<afmSize(3) && Boundary(z,y,x) == 0 && Ttag[z][y][x] == 200 ) % inside the domain and known
+			if( x>=1 && x<afmSize(1) && y>=1 && y<afmSize(2) && z>=1 && z<afmSize(3) && Boundary(z,y,x) == 0 && Ttag(z,y,x) == 200) % inside the domain and known
 				updatedDirection(1) = -yon(yonNo,1); % from (x,y,z) to (i,j,k)
 				updatedDirection(2) = -yon(yonNo,2);
 				updatedDirection(3) = -yon(yonNo,3);
-				UpdateNeighborhoodKnown(Tvalue, Ttag, F, Boundary, dx, dy, dz, Size, D, x, y, z, fm_map, trX, trY, trZ, 8, knownChangedImage, updatedDirection);
+				[Tvalue, chKnownX, chKnownY, chKnownZ, changedKnownImage] = afmUpdateNeighborhoodKnown(Tvalue, Ttag, F, Boundary, dx, dy, dz, afmSize, D, x, y, z, chKnownX, chKnownY, chKnownZ, trX, trY, trZ, 8, changedKnownImage, updatedDirection);
 			end
 		end
     	% time(&endKnown);
@@ -139,7 +152,6 @@ fprintf('afmAnisotropicFastMarching function has been called\n');
     	% /////////////////////////////
 
     end
-fakeoutput = []
 end
 
 % #include "mxAnisoDistanceTransform.h"

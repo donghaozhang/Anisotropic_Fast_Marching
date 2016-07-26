@@ -18,8 +18,10 @@ remove(mapObj, 5);
 keysmapObj = keys(mapObj)
 firstkey = keysmapObj{1}
 remove(mapObj, firstkey); 
-keys(mapObj)
+mapObjkeys = keys(mapObj);
 values(mapObj)
+valuesmapObj = values(mapObj)
+firstvalue = valuesmapObj{1}
 
 
 

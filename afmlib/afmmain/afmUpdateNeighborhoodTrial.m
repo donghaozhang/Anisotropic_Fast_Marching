@@ -225,7 +225,7 @@ function [Tvalue, Ttag, value_iter] = afmUpdateNeighborhoodTrial(Tvalue, Ttag, F
 				firstkey = viter{1};
 				remove(trialC, firstkey);
 				% adding to the good trial list
-				index = afmsub2ind(afmSize, x,y,z)
+				index = afmsub2ind(afmSize, x,y,z);
 				% value_iter[z,y,x,0] = fm_map->trial.insert(make_pair(temp,index)); %  write the address.
 				trialC(temp) = index;				
 				value_iter{z,y,x,1} = trial;
