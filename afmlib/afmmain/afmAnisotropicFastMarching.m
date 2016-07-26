@@ -34,21 +34,21 @@ fprintf('afmAnisotropicFastMarching function has been called\n');
 	% yon[6][3] = {{1,0,0},{-1,0,0},{0,1,0},{0,-1,0},{0,0,1},{0,0,-1}};
 	yon = [1,0,0;-1,0,0;0,1,0;0,-1,0;0,0,1;0,0,-1];
 	% initial tagging for everypoint in the domain.
-  	for(k=1:afmSize(3))
-    	for(j=1:afmSize(2))
-	    	for(i=0;i<afmSize(1))
-	      		if(Boundary(k,j,i) == 0 && Ttag[k,j,i] == 200) %  if it's outside the boundary and is known.
+  	for k=1:afmSize(3)
+    	for j=1:afmSize(2)
+	    	for i=1:afmSize(1) 
+	      		if(Boundary(k,j,i) == 0 && Ttag(k,j,i) == 200) %  if it's outside the boundary and is known.
 		    		for(yonNo=1:6)
-				    	x = (i - yon(yonNo,0));
-				    	y = (j - yon(yonNo,1));
-				    	z = (k - yon(yonNo,2));
+				    	x = (i - yon(yonNo,1));
+				    	y = (j - yon(yonNo,2));
+				    	z = (k - yon(yonNo,3));
 				    	conditionone = x>=0 && x<afmSize(1) && y>=0 && y<afmSize(2) && z>=0 && z<afmSize(3);
 				    	conditiontwo = Boundary(z,y,x) == 0;
 				    	conditionthree = Ttag(z,y,x) ~= 200;
 				    	conditionfinal = conditionone && conditiontwo && conditionthree;   
 				    	if(conditionfinal)
 							fprintf('afmSize(1) is : %d afmSize(2) is : %d afmSize(3) is %d\n', afmSize(1), afmSize(2), afmSize(3));		  
-							[Tvalue, Ttag, value_iter] = afmUpdateNeighborhoodTrial(Tvalue, Ttag, F, Boundary, dx, dy, dz, afmSize, D, x, y, z, trial, trialC, trX, trY, trZ, tetNo, value_iter);
+							[Tvalue, Ttag, value_iter] = afmUpdateNeighborhoodTrial(Tvalue, Ttag, F, Boundary, dx, dy, dz, afmSize, D, x, y, z, trial, trialC, trX, trY, trZ, 8, value_iter);
 						end
 		    		end
 				end

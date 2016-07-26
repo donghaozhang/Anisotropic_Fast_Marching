@@ -109,7 +109,7 @@ function [Tvalue, Ttag, value_iter] = afmUpdateNeighborhoodTrial(Tvalue, Ttag, F
 			Dhessianvec = [D(1,z,y,x), D(2,z,y,x), D(3,z,y,x), D(4,z,y,x), D(5,z,y,x), D(6,z,y,x)];
 			% Dhmat hessian mat
 			DHmat = hessianvaluetomat(Dhessianvec);
-			w1mat = Cmat' * DHmat * Cmat - 1/(F(z,y,x)^2;
+			w1mat = Cmat' * DHmat * Cmat - 1/(F(z,y,x)^2);
 			% w2 = -2*D(1,z,y,x)*Cx*Kx - 2*D(4,z,y,x)*Cy*Ky - 2*D(6,z,y,x)*Cz*Kz - 2*D(2,z,y,x)*Cx*Ky - 2*D(2,z,y,x)*Cy*Kx - 2*D(3,z,y,x)*Cx*Kz - 2*D(3,z,y,x)*Cz*Kx - 2*D(5,z,y,x)*Cy*Kz - 2*D(5,z,y,x)*Cz*Ky
 			w2mat = -2 * Kvec' * DHmat * Cmat;
 			% w3 = D(1,z,y,x)*(Kx^2) + D(4,z,y,x)*(Ky^2) + D(6,z,y,x)*(Kz^2) + 2*D(2,z,y,x)*Kx*Ky + 2*D(3,z,y,x)*Kx*Kz + 2*D(5,z,y,x)*Ky*Kz - 1/(F(z,y,x)^2)
@@ -236,7 +236,9 @@ function [Tvalue, Ttag, value_iter] = afmUpdateNeighborhoodTrial(Tvalue, Ttag, F
 		else % it is not in both lists
 			index = afmsub2ind(afmSize, x,y,z)
 			% value_iter[z][y][x][0] = fm_map->trial.insert( make_pair(temp,index) ); // write the address.
-			trial(temp) = index;
+			% This line will be revised in the future
+            temp = real(temp);
+            trial(temp) = index;
 			value_iter{z,y,x,1} = trial;
 			% save('value_iter.mat', 'value_iter');
 			Tvalue(z,y,x) = temp;

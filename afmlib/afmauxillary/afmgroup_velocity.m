@@ -56,8 +56,10 @@ function groupvvaluemat = afmgroup_velocity(x, y, z, D, yon, F)
 	% fprintf('the value of A calculated by afm is %f\n', A)
 	checksqrt = x_tildamat' * hessianmat * x_tildamat;
 	if (checksqrt < 0)
-		fprintf('You can not put negative number under the square');
-		return;
+		fprintf('You can not put negative number under the square happened in groupvelocity\n');
+		% return;
+        % This decision might revised in the future
+        checksqrt = abs(checksqrt);
 	end
 	Amat = sqrt(checksqrt) * F;
 	% fprintf('the value of A calculated by matlab is %f\n', Amat);	
