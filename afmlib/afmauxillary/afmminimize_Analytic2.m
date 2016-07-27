@@ -143,7 +143,10 @@ function f = minimize_Analytic2(Ta, Tb, x, y, z, Dbig, a, b, F, d_a, d_b)
 %   f_atOne = Ta*t + (1-t)*Tb + sqrt( P[0][0]*std::pow(vec[0],2) + P[1][1]*std::pow(vec[1],2) + P[2][2]*std::pow(vec[2],2) + 2*P[0][1]*vec[0]*vec[1] + 2*P[0][2]*vec[0]*vec[2] + 2*P[1][2]*vec[1]*vec[2] )/F;
 %   f = min(f_atOne, f_atZero);
   f = afmmin(f_atZeromat, f_atOnemat);
-
+  f_realflag = isreal(f);
+  if ~f_realflag
+    fprintf('Imaginary value appears stage one\n');
+  end
 %   if(q[0] >= 0 && q[0] <= 1)
 %   {
 %   	t = q[0];
@@ -165,6 +168,10 @@ function f = minimize_Analytic2(Ta, Tb, x, y, z, Dbig, a, b, F, d_a, d_b)
     % f_q1 = Ta*t + (1-t)*Tb + sqrt( P(1, 1)*(vecmat(1)^2) + P(2, 2)*(vecmat(2)^2) + P(3, 3)*(vecmat(3)^2) + 2*P(1, 2)*vecmat(1)*vecmat(2) + 2*P(1, 3)*vecmat(1)*vecmat(3) + 2*P(2, 3)*vecmat(2)*vecmat(3) )/F;
     f_q1mat = Ta*t + (1-t)*Tb + sqrt(vecmat * P * vecmat') / F;
     f = afmmin(f, f_q1mat);
+    f_realflag = isreal(f);
+    if ~f_realflag
+      fprintf('Imaginary value appears stage two\n');
+    end
   end
 %   if(q[1] >= 0 && q[1] <= 1)
 %   {
@@ -186,10 +193,13 @@ function f = minimize_Analytic2(Ta, Tb, x, y, z, Dbig, a, b, F, d_a, d_b)
     vecmat = a * t * d_a + b * (1 - t) * d_b;
     % f_q2 = Ta*t + (1-t)*Tb + sqrt( P(1,1)*(vecmat(1)^2) + P(2,2)*(vecmat(2)^2) + P(3,3)*(vecmat(3)^2) + 2*P(1,2)*vecmat(1)*vecmat(2) + 2*P(1,3)*vecmat(1)*vecmat(3) + 2*P(2,3)*vecmat(2)*vecmat(3) )/F
     f_q2mat = Ta*t + (1-t)*Tb + sqrt(vecmat * P * vecmat') / F;
-    f = afmmin(f, f_q2mat)
+    f = afmmin(f, f_q2mat);
   end
 %   return(f);
-  
-
+    f_realflag = isreal(f);
+    if ~f_realflag
+      fprintf('Imaginary value appears stage two\n');
+    end
+    f
 % }
 end

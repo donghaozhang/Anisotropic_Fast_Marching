@@ -53,7 +53,7 @@ fprintf('afmAnisotropicFastMarching function has been called\n');
                             if conditiontwo && conditionthree
                                 % fprintf('afmSize(1) is : %d afmSize(2) is : %d afmSize(3) is %d\n', afmSize(1), afmSize(2), afmSize(3));
                                 % fprintf('Before updating UpdateNeighborhoodTrial function is called\n');
-                                fprintf('x : %d y : %d z : %d\n', x, y, z);
+                                % fprintf('x : %d y : %d z : %d\n', x, y, z);
                                 [Tvalue, Ttag, value_iter, trial, trialC] = afmUpdateNeighborhoodTrial(Tvalue, Ttag, F, Boundary, dx, dy, dz, afmSize, D, x, y, z, trial, trialC, trX, trY, trZ, 8, value_iter);
                                 % fprintf('After updating UpdateNeighborhoodTrial function is called\n');
                             end
@@ -75,7 +75,8 @@ fprintf('afmAnisotropicFastMarching function has been called\n');
 	chKnownZ = [];
 	% The following variable is just for defining loop iterations
 	mainloopcounter = 1;
-	while(size(trial,1) ~= 0 || size(trialC,1) ~= 0 || (numel(chKnownX) ~= 0) && ~limitReached)
+	% while(size(trial,1) ~= 0 || size(trialC,1) ~= 0 || (numel(chKnownX) ~= 0) && ~limitReached)
+	for xxxx = 1 : 6
 		mainloopcounter = mainloopcounter + 1;
 		fprintf('Main loop iteration %d\n', mainloopcounter);
     	if(numel(chKnownX) == 0)
@@ -136,7 +137,7 @@ fprintf('afmAnisotropicFastMarching function has been called\n');
 			z = k - yon(yonNo,3);
 			% fprintf('update known neighbour loop\n');
 			% fprintf('x is :%d, y is : %d, z is %d\n', x, y, z);
-			fprintf('i is :%d, j is : %d, k is %d\n', i, j, k);
+			% fprintf('i is :%d, j is : %d, k is %d\n', i, j, k);
 			% fprintf('the value of Boundary(z,y,x) is : \n', Boundary(z,y,x));
 			if( x>=1 && x<afmSize(1) && y>=1 && y<afmSize(2) && z>=1 && z<afmSize(3) && Boundary(z,y,x) == 0 && Ttag(z,y,x) == 200) % inside the domain and known
 				updatedDirection(1) = -yon(yonNo,1); % from (x,y,z) to (i,j,k)

@@ -207,13 +207,16 @@ function [Tvalue, Ttag, value_iter, trial, trialC] = afmUpdateNeighborhoodTrial(
 	if(temp ~= 5000)
 		if( Ttag(z,y,x) == 175 ) % point is already in the good trial list. UPDATE.
 			viter = value_iter{z,y,x,1};
-			firstkey = viter{1};
+			viterkeys = keys(viter);
+			firstkey = viterkeys{1};
 			if( firstkey > temp )
 				Tvalue(z,y,x) = temp;
 				index = afmsub2ind(afmSize, x, y, z);
 				% fm_map->trial.erase( viter );
 				remove(trial, firstkey);
 				% value_iter[z][y][x][0] = fm_map->trial.insert( make_pair(temp,index) );
+                % The following line might be changed in the future
+                temp = real(temp);
 				trial(temp) = index;				
 				value_iter{z,y,x,1} = trial;
 				% fprintf('Stage One\n');
@@ -255,7 +258,8 @@ function [Tvalue, Ttag, value_iter, trial, trialC] = afmUpdateNeighborhoodTrial(
 				% removing from the good trial list.
 				viter = value_iter{z,y,x,1};
 				% fm_map->trial.erase(viter);
-				firstkey = viter{1}
+				viterkeys = keys(viter);
+				firstkey = viterkeys{1};
 				remove(trial, firstkey);
 				% adding to the bad trial list.
 				index = afmsub2ind(afmSize,x,y,z);
@@ -267,7 +271,8 @@ function [Tvalue, Ttag, value_iter, trial, trialC] = afmUpdateNeighborhoodTrial(
 			end
 		elseif( Ttag(z,y,x) == 125 ) % not in the good list but in the bad list.
 			viter = value_iter{z,y,x,2};
-			firstkey = viter{1}
+			viterkeys = keys(viter);
+			firstkey = viterkeys{1};
 			if(firstkey > temp2)
 				Tvalue(z,y,x) = temp2;
 				index = afmsub2ind(afmSize,x,y,z);
