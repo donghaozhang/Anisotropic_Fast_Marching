@@ -223,7 +223,7 @@ function [Tvalue, Ttag, value_iter, trial, trialC] = afmUpdateNeighborhoodTrial(
 				% removing from the bad one.
 				viter = value_iter{z,y,x,2};	
 				% fm_map->trialC.erase( viter );
-				firstkey = viter{1};
+				firstkey = viter{1}
 				remove(trialC, firstkey);
 				% adding to the good trial list
 				index = afmsub2ind(afmSize, x,y,z);
@@ -267,7 +267,7 @@ function [Tvalue, Ttag, value_iter, trial, trialC] = afmUpdateNeighborhoodTrial(
 			end
 		elseif( Ttag(z,y,x) == 125 ) % not in the good list but in the bad list.
 			viter = value_iter{z,y,x,2};
-			firstkey = viter{1};
+			firstkey = viter{1}
 			if(firstkey > temp2)
 				Tvalue(z,y,x) = temp2;
 				index = afmsub2ind(afmSize,x,y,z);

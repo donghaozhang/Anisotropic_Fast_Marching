@@ -46,15 +46,17 @@ fprintf('afmAnisotropicFastMarching function has been called\n');
 				    	y = (j - yon(yonNo,2));
 				    	z = (k - yon(yonNo,3));
 				    	conditionone = x>=0 && x<afmSize(1) && y>=0 && y<afmSize(2) && z>=0 && z<afmSize(3);
-				    	conditiontwo = Boundary(z,y,x) == 0;
-				    	conditionthree = Ttag(z,y,x) ~= 200;
-				    	conditionfinal = conditionone && conditiontwo && conditionthree;   
-				    	if(conditionfinal)
-							% fprintf('afmSize(1) is : %d afmSize(2) is : %d afmSize(3) is %d\n', afmSize(1), afmSize(2), afmSize(3));
-							% fprintf('Before updating UpdateNeighborhoodTrial function is called\n');
-							fprintf('x : %d y : %d z : %d\n', x, y, z);
-							[Tvalue, Ttag, value_iter, trial, trialC] = afmUpdateNeighborhoodTrial(Tvalue, Ttag, F, Boundary, dx, dy, dz, afmSize, D, x, y, z, trial, trialC, trX, trY, trZ, 8, value_iter);
-							% fprintf('After updating UpdateNeighborhoodTrial function is called\n');
+				    	% conditionfinal = conditionone && conditiontwo && conditionthree;   
+				    	if(conditionone)
+                            conditiontwo = Boundary(z,y,x) == 0;
+				    		conditionthree = Ttag(z,y,x) ~= 200;
+                            if conditiontwo && conditionthree
+                                % fprintf('afmSize(1) is : %d afmSize(2) is : %d afmSize(3) is %d\n', afmSize(1), afmSize(2), afmSize(3));
+                                % fprintf('Before updating UpdateNeighborhoodTrial function is called\n');
+                                fprintf('x : %d y : %d z : %d\n', x, y, z);
+                                [Tvalue, Ttag, value_iter, trial, trialC] = afmUpdateNeighborhoodTrial(Tvalue, Ttag, F, Boundary, dx, dy, dz, afmSize, D, x, y, z, trial, trialC, trX, trY, trZ, 8, value_iter);
+                                % fprintf('After updating UpdateNeighborhoodTrial function is called\n');
+                            end
 						end
 		    		end
 				end
@@ -85,6 +87,9 @@ fprintf('afmAnisotropicFastMarching function has been called\n');
 				posx = pos.x;
 				posy = pos.y;
 				posz = pos.z;
+				i = afmlround(posx);
+				j = afmlround(posy);
+				k = afmlround(posz);
 		    	% make the point known and remove it from the good list.
 		    	Ttag(k,j,i) = 200;
 		    	keystrial = keys(trial);
@@ -105,6 +110,7 @@ fprintf('afmAnisotropicFastMarching function has been called\n');
 				i = afmlround(posx);
 				j = afmlround(posy);
 				k = afmlround(posz);
+
 				% make the point known and remove it from the bad list.
 				Ttag(k,j,i) = 200;
 				keystrialC = keys(trialC);
@@ -128,11 +134,17 @@ fprintf('afmAnisotropicFastMarching function has been called\n');
 			x = i - yon(yonNo,1);
 			y = j - yon(yonNo,2);
 			z = k - yon(yonNo,3);
+			% fprintf('update known neighbour loop\n');
+			% fprintf('x is :%d, y is : %d, z is %d\n', x, y, z);
+			fprintf('i is :%d, j is : %d, k is %d\n', i, j, k);
+			% fprintf('the value of Boundary(z,y,x) is : \n', Boundary(z,y,x));
 			if( x>=1 && x<afmSize(1) && y>=1 && y<afmSize(2) && z>=1 && z<afmSize(3) && Boundary(z,y,x) == 0 && Ttag(z,y,x) == 200) % inside the domain and known
 				updatedDirection(1) = -yon(yonNo,1); % from (x,y,z) to (i,j,k)
 				updatedDirection(2) = -yon(yonNo,2);
 				updatedDirection(3) = -yon(yonNo,3);
-				[Tvalue, chKnownX, chKnownY, chKnownZ, changedKnownImage] = afmUpdateNeighborhoodKnown(Tvalue, Ttag, F, Boundary, dx, dy, dz, afmSize, D, x, y, z, chKnownX, chKnownY, chKnownZ, trX, trY, trZ, 8, changedKnownImage, updatedDirection);
+				% fprintf('update known neighbour loop\n');
+
+				[Tvalue, chKnownX, chKnownY, chKnownZ, changedKnownImage] = afmUpdateNeighborhoodKnown(Tvalue, Ttag, F, Boundary, dx, dy, dz, afmSize, D, x, y, z, chKnownX, chKnownY, chKnownZ, trX, trY, trZ, 8, knownChangedImage, updatedDirection);
 			end
 		end
     	% time(&endKnown);
