@@ -62,23 +62,33 @@ function [Tvalue, Ttag, value_iter, trial, trialC] = afmUpdateNeighborhoodTrial(
 			Ta = 5000;
 		else
 			Ta = Tvalue((z+trZ(trNo,1)), (y+trY(trNo,1)), (x+trX(trNo,1)));
-		end
-
+        end
+        
+        conditionone = (x+trX(trNo,2))<1 || (y+trY(trNo,2))<1 || (z+trZ(trNo,2))<1;
 		conditiontwo = x+trX(trNo,2)>=afmSize(1) || y+trY(trNo,2)>= afmSize(2) || z+trZ(trNo,2)>= afmSize(3);
-		conditionthree = (Boundary((z+trZ(trNo,2)), (y+trY(trNo,2)), (x+trX(trNo,2))) == 1);
-		conditionfour = (Ttag((z+trZ(trNo,2)), (y+trY(trNo,2)), (x+trX(trNo,2))) ~= 200);
-		finalcondition = conditionone || conditiontwo || conditionthree || conditionfour;  
+        if  (x+trX(trNo,2))>1 && (y+trY(trNo,2))>1 && (z+trZ(trNo,2))>1 && x+trX(trNo,2)<= afmSize(1) && y+trY(trNo,2)<= afmSize(2) && z+trZ(trNo,2)<= afmSize(3);
+            conditionthree = (Boundary((z+trZ(trNo,2)), (y+trY(trNo,2)), (x+trX(trNo,2))) == 1);
+            conditionfour = (Ttag((z+trZ(trNo,2)), (y+trY(trNo,2)), (x+trX(trNo,2))) ~= 200);
+            finalcondition = conditionone || conditiontwo || conditionthree || conditionfour; 
+        else
+            finalcondition = conditionone || conditiontwo;
+        end
 		if  finalcondition 
 			flagb = false;
 			Tb = 5000;
 		else
-			Tb = Tvalue((z+trZ(trNo,1)), (y+trY(trNo,1)), (x+trX(trNo,1)));
-		end
-
+			Tb = Tvalue((z+trZ(trNo,2)), (y+trY(trNo,2)), (x+trX(trNo,2)));
+        end
+        
+        conditionone = (x+trX(trNo,3))<1 || (y+trY(trNo,3))<1 || (z+trZ(trNo,3))<1; 
 		conditiontwo = x+trX(trNo,3)>=afmSize(1) || y+trY(trNo,3)>= afmSize(2) || z+trZ(trNo,3)>= afmSize(3);
-		conditionthree = (Boundary((z+trZ(trNo,3)), (y+trY(trNo,3)), (x+trX(trNo,3))) == 1);
-		conditionfour = (Ttag((z+trZ(trNo,3)), (y+trY(trNo,3)), (x+trX(trNo,3))) ~= 200);
-		finalcondition = conditionone || conditiontwo || conditionthree || conditionfour;  
+        if  (x+trX(trNo,3))>1 && (y+trY(trNo,3))>1 && (z+trZ(trNo,3))>1 && x+trX(trNo,3)<= afmSize(1) && y+trY(trNo,3)<= afmSize(2) && z+trZ(trNo,3)<= afmSize(3);
+            conditionthree = (Boundary((z+trZ(trNo,3)), (y+trY(trNo,3)), (x+trX(trNo,3))) == 1);
+            conditionfour = (Ttag((z+trZ(trNo,3)), (y+trY(trNo,3)), (x+trX(trNo,3))) ~= 200);
+            finalcondition = conditionone || conditiontwo || conditionthree || conditionfour;
+        else
+            finalcondition = conditionone || conditiontwo;
+        end
 		if  finalcondition 
 			flagc = false;
 			Tc = 5000;
@@ -167,11 +177,11 @@ function [Tvalue, Ttag, value_iter, trial, trialC] = afmUpdateNeighborhoodTrial(
 				if(conditionone || conditiontwo || conditionthree && conditionfour)
 					temp = afmmin(temp, R(2));
                     %!!!!!!!
-                    temp_realflag = isreal(temp);
-                    if (~temp_realflag) 
-                        fprintf('Imaginary value appears because Tvalue trial update ~flaga && ~flagb && flagc\n');
-                        xxxxxxxx
-                    end
+                    % temp_realflag = isreal(temp);
+                    % if (~temp_realflag) 
+                    %     fprintf('Imaginary value appears because Tvalue trial update ~flaga && ~flagb && flagc\n');
+                    %     xxxxxxxx
+                    % end
                     %!!!!!!!!!
 					flag2 = true;
 				end
@@ -190,81 +200,81 @@ function [Tvalue, Ttag, value_iter, trial, trialC] = afmUpdateNeighborhoodTrial(
 				temp = afmmin(temp, afmminimize_Analytic2(Ta,Tc,x,y,z,D,a,c,F(z,y,x),d_a,d_c));
 				temp = afmmin(temp, afmminimize_Analytic2(Tb,Tc,x,y,z,D,b,c,F(z,y,x),d_b,d_c));
                 %!!!!!!!
-                temp_realflag = isreal(temp);
-                if (~temp_realflag) 
-                    fprintf('Imaginary value appears because Tvalue trial update flaga && flagb && flagc\n');
-                    xxxxxxxx
-                end
+                % temp_realflag = isreal(temp);
+                % if (~temp_realflag) 
+                %     fprintf('Imaginary value appears because Tvalue trial update flaga && flagb && flagc\n');
+                %     xxxxxxxx
+                % end
                 %!!!!!!!!!
-				fprintf('true true true\n');
+				%fprintf('true true true\n');
 			elseif(~flaga && flagb && flagc) % only two are ok.
 				temp = afmmin(temp, afmminimize_Analytic2(Tb,Tc,x,y,z,D,b,c,F(z,y,x),d_b,d_c));
                 %!!!!!!!
-                temp_realflag = isreal(temp);
-                if (~temp_realflag) 
-                    fprintf('Imaginary value appears because Tvalue trial update ~flaga && flagb && flagc\n');
-                    xxxxxxxx
-                end
+                % temp_realflag = isreal(temp);
+                % if (~temp_realflag) 
+                %     fprintf('Imaginary value appears because Tvalue trial update ~flaga && flagb && flagc\n');
+                %     xxxxxxxx
+                % end
                 %!!!!!!!!!
-				fprintf('false true true\n');
+				%fprintf('false true true\n');
 			elseif(flaga && ~flagb && flagc) % only two are ok.
 				temp = afmmin(temp, afmminimize_Analytic2(Ta,Tc,x,y,z,D,a,c,F(z,y,x),d_a,d_c));
                 %!!!!!!!
-                temp_realflag = isreal(temp);
-                if (~temp_realflag) 
-                    fprintf('Imaginary value appears because Tvalue trial update flaga && ~flagb && flagc\n');
-                    xxxxxxxx
-                end
+                % temp_realflag = isreal(temp);
+                % if (~temp_realflag) 
+                %     fprintf('Imaginary value appears because Tvalue trial update flaga && ~flagb && flagc\n');
+                %     xxxxxxxx
+                % end
                 %!!!!!!!!!
 			elseif(flaga && flagb && ~flagc) % only two are ok.
 				temp = afmmin(temp, afmminimize_Analytic2(Ta,Tb,x,y,z,D,a,b,F(z,y,x),d_a,d_b));
                 %!!!!!!!
-                temp_realflag = isreal(temp);
-                if (~temp_realflag) 
-                    fprintf('Imaginary value appears because Tvalue trial update flaga && flagb && ~flagc\n');
-                    xxxxxxxx
-                end
+                % temp_realflag = isreal(temp);
+                % if (~temp_realflag) 
+                %     fprintf('Imaginary value appears because Tvalue trial update flaga && flagb && ~flagc\n');
+                %     xxxxxxxx
+                % end
                 %!!!!!!!!!
 			elseif(flaga && ~flagb && ~flagc) % only one is ok.
 				vga = afmgroup_velocity(x,y,z,D,a',F(z,y,x));
 				temp = afmmin(temp, Ta+d_a/vga);
                 %!!!!!!!
-                temp_realflag = isreal(temp);
-                if (~temp_realflag) 
-                    fprintf('Imaginary value appears because Tvalue trial update flaga && ~flagb && ~flagc\n');
-                    xxxxxxxx
-                end
+                % temp_realflag = isreal(temp);
+                % if (~temp_realflag) 
+                %     fprintf('Imaginary value appears because Tvalue trial update flaga && ~flagb && ~flagc\n');
+                %     xxxxxxxx
+                % end
                 %!!!!!!!!!
 			elseif(~flaga && flagb && ~flagc) % only one is ok.
 				vgb = afmgroup_velocity(x,y,z,D,b',F(z,y,x));
 				temp = afmmin(temp, Tb+d_b/vgb);
                 %!!!!!!!
-                temp_realflag = isreal(temp);
-                if (~temp_realflag) 
-                    fprintf('Imaginary value appears because Tvalue trial update ~flaga && flagb && ~flagc\n');
-                    xxxxxxxx
-                end
+                % temp_realflag = isreal(temp);
+                % if (~temp_realflag) 
+                %     fprintf('Imaginary value appears because Tvalue trial update ~flaga && flagb && ~flagc\n');
+                %     xxxxxxxx
+                % end
                 %!!!!!!!!!
 			elseif(~flaga && ~flagb && flagc) % only one is ok.
 				vgc = afmgroup_velocity(x,y,z,D,c',F(z,y,x));
 				temp = afmmin(temp, Tc+d_c/vgc);
                 %!!!!!!!
-                temp_realflag = isreal(temp);
-                if (~temp_realflag)
-                    vgc = vgc
-                    Tc = Tc
-                    fprintf('Imaginary value appears because Tvalue trial update ~flaga && ~flagb && flagc\n');
-                    xxxxxxxx
-                end
+                % temp_realflag = isreal(temp);
+                % if (~temp_realflag)
+                %     vgc = vgc
+                %     Tc = Tc
+                %     fprintf('Imaginary value appears because Tvalue trial update ~flaga && ~flagb && flagc\n');
+                %     xxxxxxxx
+                % end
                 %!!!!!!!!!
 			end
         end
         %!!!!!!!
-        temp_realflag = isreal(temp);
-        if (~temp_realflag) 
-            fprintf('Imaginary value appears because Tvalue trial update between\n');
-            xxxxxxxx
-        end
+        % temp_realflag = isreal(temp);
+        % if (~temp_realflag) 
+        %     fprintf('Imaginary value appears because Tvalue trial update between\n');
+        %     xxxxxxxx
+        % end
         %!!!!!!!!!
         
 	end
@@ -276,13 +286,13 @@ function [Tvalue, Ttag, value_iter, trial, trialC] = afmUpdateNeighborhoodTrial(
 			firstkey = viterkeys{1};
 			if( firstkey > temp )
 				Tvalue(z,y,x) = temp;
-                temp = temp
+                %temp = temp
                 %!!!!!!!
-                Tvalue_realflag = isreal(Tvalue);
-                if (~Tvalue_realflag) 
-                    fprintf('Imaginary value appears because Tvalue trial update stage one\n');
-                    xxxxxxxx
-                end
+                % Tvalue_realflag = isreal(Tvalue);
+                % if (~Tvalue_realflag) 
+                %     fprintf('Imaginary value appears because Tvalue trial update stage one\n');
+                %     xxxxxxxx
+                % end
                 %!!!!!!!!!
 				index = afmsub2ind(afmSize, x, y, z);
 				% fm_map->trial.erase( viter );
@@ -308,11 +318,11 @@ function [Tvalue, Ttag, value_iter, trial, trialC] = afmUpdateNeighborhoodTrial(
 				value_iter{z,y,x,1} = trial;
 				Tvalue(z,y,x) = temp;
                 %!!!!!!!
-                Tvalue_realflag = isreal(Tvalue);
-                if (~Tvalue_realflag) 
-                    fprintf('Imaginary value appears because Tvalue trial update stage two\n');
-                    xxxxxxxx
-                end
+                % Tvalue_realflag = isreal(Tvalue);
+                % if (~Tvalue_realflag) 
+                %     fprintf('Imaginary value appears because Tvalue trial update stage two\n');
+                %     xxxxxxxx
+                % end
                 %!!!!!!!!!
 				Ttag(z,y,x) = 175; % making good trial tag.
 				% fprintf('Stage Two\n');
@@ -327,11 +337,11 @@ function [Tvalue, Ttag, value_iter, trial, trialC] = afmUpdateNeighborhoodTrial(
 			% save('value_iter.mat', 'value_iter');
 			Tvalue(z,y,x) = temp;
             %!!!!!!!
-            Tvalue_realflag = isreal(Tvalue);
-            if (~Tvalue_realflag) 
-                fprintf('Imaginary value appears because Tvalue trial update stage three\n');
-                xxxxxxxx
-            end
+            % Tvalue_realflag = isreal(Tvalue);
+            % if (~Tvalue_realflag) 
+            %     fprintf('Imaginary value appears because Tvalue trial update stage three\n');
+            %     xxxxxxxx
+            % end
             %!!!!!!!!!
 			Ttag(z,y,x) = 175; % good list trial number
 			% fprintf('Stage Three\n');
@@ -363,11 +373,11 @@ function [Tvalue, Ttag, value_iter, trial, trialC] = afmUpdateNeighborhoodTrial(
 			if(firstkey > temp2)
 				Tvalue(z,y,x) = temp2;
                 %!!!!!!!
-                Tvalue_realflag = isreal(Tvalue);
-                if (~Tvalue_realflag) 
-                    fprintf('Imaginary value appears because Tvalue trial update stage four\n');
-                    xxxxxxxx
-                end
+                % Tvalue_realflag = isreal(Tvalue);
+                % if (~Tvalue_realflag) 
+                %     fprintf('Imaginary value appears because Tvalue trial update stage four\n');
+                %     xxxxxxxx
+                % end
                 %!!!!!!!!!
 				index = afmsub2ind(afmSize,x,y,z);
 				% fm_map->trialC.erase(viter);
@@ -383,11 +393,11 @@ function [Tvalue, Ttag, value_iter, trial, trialC] = afmUpdateNeighborhoodTrial(
 			value_iter{z,y,x,2} = trialC;	
 			Tvalue(z,y,x) = temp2;
             %!!!!!!!
-            Tvalue_realflag = isreal(Tvalue);
-            if (~Tvalue_realflag) 
-                fprintf('Imaginary value appears because Tvalue trial update stage five\n');
-                xxxxxxxx
-            end
+            % Tvalue_realflag = isreal(Tvalue);
+            % if (~Tvalue_realflag) 
+            %     fprintf('Imaginary value appears because Tvalue trial update stage five\n');
+            %     xxxxxxxx
+            % end
             %!!!!!!!!!
 			Ttag(z,y,x) = 125; %  bad list trial number
 		end

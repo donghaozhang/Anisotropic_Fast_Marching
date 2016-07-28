@@ -38,6 +38,7 @@ for(z = 1 : afmSize(3))
     end
 end
 [Tval, Ttag] = afmAnisotropicFastMarching(Tval, Ttag, F, Boundary, dx, dy, dz, afmSize, D, timeLimit);
+Tval(Tval==100) = -1;
 
 	% /* Assigning the output */
 	% for (int z = 0; z < dimV[2]; z++)

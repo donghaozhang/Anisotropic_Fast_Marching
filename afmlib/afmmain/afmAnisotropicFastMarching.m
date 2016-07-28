@@ -75,15 +75,15 @@ fprintf('afmAnisotropicFastMarching function has been called\n');
 	chKnownZ = [];
 	% The following variable is just for defining loop iterations
 	mainloopcounter = 1;
-	% while(size(trial,1) ~= 0 || size(trialC,1) ~= 0 || (numel(chKnownX) ~= 0) && ~limitReached)
-	for xxxx = 1 : 500
+	while(size(trial,1) ~= 0 || size(trialC,1) ~= 0 || (numel(chKnownX) ~= 0) && ~limitReached)
+	% for xxxx = 1 : 15710
 		mainloopcounter = mainloopcounter + 1;
 		fprintf('Main loop iteration %d\n', mainloopcounter);
-        Tvalue_realflag = isreal(Tvalue);
-        if (~Tvalue_realflag) 
-            fprintf('Imaginary value appears because Tvalue\n');
-            xxxxxx
-        end
+        % Tvalue_realflag = isreal(Tvalue);
+        % if (~Tvalue_realflag) 
+        %     fprintf('Imaginary value appears because Tvalue\n');
+        %     xxxxxx
+        % end
     	if(numel(chKnownX) == 0)
 			if(size(trial,1) ~= 0) % make the minimum element known.
 		    	% finding the minimum element in the good list.
@@ -151,11 +151,11 @@ fprintf('afmAnisotropicFastMarching function has been called\n');
 				% fprintf('update known neighbour loop\n');
 
 				[Tvalue, chKnownX, chKnownY, chKnownZ, knownChangedImage] = afmUpdateNeighborhoodKnown(Tvalue, Ttag, F, Boundary, dx, dy, dz, afmSize, D, x, y, z, chKnownX, chKnownY, chKnownZ, trX, trY, trZ, 8, knownChangedImage, updatedDirection);
-                Tvalue_realflag = isreal(Tvalue);
-                if (~Tvalue_realflag) 
-                    fprintf('Imaginary value appears because Tvalue after known\n');
-                    xxxxxx
-                end
+                % Tvalue_realflag = isreal(Tvalue);
+                % if (~Tvalue_realflag) 
+                %     fprintf('Imaginary value appears because Tvalue after known\n');
+                %     xxxxxx
+                % end
 			end
 		end
     	% time(&endKnown);
@@ -172,11 +172,11 @@ fprintf('afmAnisotropicFastMarching function has been called\n');
 			z = k - yon(yonNo,3);
 			if(x>=1 && x<afmSize(1) && y>=1 && y<afmSize(2) && z>=1 && z<afmSize(3) && Boundary(z,y,x) == 0 && Ttag(z,y,x) ~= 200)
 		    	[Tvalue, Ttag, value_iter] = afmUpdateNeighborhoodTrial(Tvalue, Ttag, F, Boundary, dx, dy, dz, afmSize, D, x, y, z, trial, trialC, trX, trY, trZ, 8, value_iter);
-                Tvalue_realflag = isreal(Tvalue);
-                if (~Tvalue_realflag) 
-                    fprintf('Imaginary value appears because Tvalue after trial\n');
-                    xxxxxx
-                end
+                % Tvalue_realflag = isreal(Tvalue);
+                % if (~Tvalue_realflag) 
+                %     fprintf('Imaginary value appears because Tvalue after trial\n');
+                %     xxxxxx
+                % end
 		    end
 		end
 		printtrial = toc(Trialtime);

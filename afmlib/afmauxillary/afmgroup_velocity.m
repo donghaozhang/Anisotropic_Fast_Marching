@@ -94,12 +94,12 @@ function groupvvaluemat = afmgroup_velocity(x, y, z, D, yon, F)
 	temp = (hessianmat * Xmat).^2;
 	groupvvaluemat = sqrt(sum(temp(:))) * F / Bmat;
     %!!!!!!!
-    groupvvaluemat_realflag = isreal(groupvvaluemat);
-    if (~groupvvaluemat_realflag)
-        save('../../mat/debuggroup_velocity.mat')
-        fprintf('Imaginary value appears because Tvalue trial update ~flaga && ~flagb && flagc\n');
-        xxxxxxxx
-    end
+    % groupvvaluemat_realflag = isreal(groupvvaluemat);
+    % if (~groupvvaluemat_realflag)
+    %     save('../../mat/debuggroup_velocity.mat')
+    %     fprintf('Imaginary value appears because Tvalue trial update ~flaga && ~flagb && flagc\n');
+    %     xxxxxxxx
+    % end
     %!!!!!!!!!
 	% groupvvaluemat
 end
