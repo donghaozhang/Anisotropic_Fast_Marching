@@ -67,21 +67,29 @@ function [Tvalue, chKnownX, chKnownY, chKnownZ, changedKnownImage] = afmUpdateNe
 
 			conditionone = (x+trX(trNo,1))<1 || (y+trY(trNo,1))<1 || (z+trZ(trNo,1))<1;
 			conditiontwo = x+trX(trNo,1)>=afmSize(1) || y+trY(trNo,1)>=afmSize(2) || z+trZ(trNo,1)>=afmSize(3);
-			conditionthree = Boundary((z+trZ(trNo,1)),(y+trY(trNo,1)),(x+trX(trNo,1))) == 1;
-			conditionfour = Ttag((z+trZ(trNo,1)), (y+trY(trNo,1)), (x+trX(trNo,1))) ~= 200;
-			conditionfinal = conditionone || conditiontwo || conditionthree || conditionfour;  
-			if(conditionone&&conditiontwo)
+            if x+trX(trNo,1)>0 && y+trY(trNo,1)>0 && z+trZ(trNo,1)>0 && x+trX(trNo,1)<=afmSize(1) && y+trY(trNo,1)<=afmSize(2) && z+trZ(trNo,1)<=afmSize(3);
+                conditionthree = Boundary((z+trZ(trNo,1)),(y+trY(trNo,1)),(x+trX(trNo,1))) == 1;
+                conditionfour = Ttag((z+trZ(trNo,1)), (y+trY(trNo,1)), (x+trX(trNo,1))) ~= 200;
+                conditionfinal = conditionone || conditiontwo || conditionthree || conditionfour;  
+            else
+                conditionfinal = conditionone || conditiontwo;
+            end
+			if(conditionfinal)
 				flaga = false;
 				Ta = 5000;
 			else
 				Ta = Tvalue((z+trZ(trNo,1)),(y+trY(trNo,1)),(x+trX(trNo,1)));
 			end
 
-			conditionone = x+trX(trNo,2)<0 || y+trY(trNo,2)<0 || z+trZ(trNo,2)<0;
+			conditionone = x+trX(trNo,2)<1 || y+trY(trNo,2)<1 || z+trZ(trNo,2)<1;
 			conditiontwo = x+trX(trNo,2)>=afmSize(1) || y+trY(trNo,2)>=afmSize(2) || z+trZ(trNo,2)>=afmSize(3);
-			conditionthree = Boundary((z+trZ(trNo,2)),(y+trY(trNo,2)),(x+trX(trNo,2))) == 1;
-			conditionfour = (Ttag((z+trZ(trNo,2)), (y+trY(trNo,2)), (x+trX(trNo,2)))) ~= 200;
-			conditionfinal = conditionone || conditiontwo || conditionthree || conditionfour; 
+            if x+trX(trNo,2)>0 && y+trY(trNo,2)>0 && z+trZ(trNo,2)>0 && x+trX(trNo,2)<=afmSize(1) && y+trY(trNo,2)<=afmSize(2) && z+trZ(trNo,2)<=afmSize(3);
+                conditionthree = Boundary((z+trZ(trNo,2)),(y+trY(trNo,2)),(x+trX(trNo,2))) == 1;
+                conditionfour = (Ttag((z+trZ(trNo,2)), (y+trY(trNo,2)), (x+trX(trNo,2)))) ~= 200;
+                conditionfinal = conditionone || conditiontwo || conditionthree || conditionfour; 
+            else
+                conditionfinal = conditionone || conditiontwo;
+            end
 			if(conditionfinal) 
 				flagb = false;
 				Tb = 5000;
@@ -89,12 +97,16 @@ function [Tvalue, chKnownX, chKnownY, chKnownZ, changedKnownImage] = afmUpdateNe
 				Tb = Tvalue((z+trZ(trNo,2)),(y+trY(trNo,2)),(x+trX(trNo,2)));
 			end
 
-			conditionone = x+trX(trNo,3)<0 || y+trY(trNo,3)<0 || z+trZ(trNo,3)<0;
+			conditionone = x+trX(trNo,3)<1 || y+trY(trNo,3)<1 || z+trZ(trNo,3)<1;
 			conditiontwo = x+trX(trNo,3)>=afmSize(1) || y+trY(trNo,3)>=afmSize(2) || z+trZ(trNo,3)>=afmSize(3);
-			conditionthree = Boundary((z+trZ(trNo,3)),(y+trY(trNo,3)),(x+trX(trNo,3))) == 1;
-			conditionfour = Ttag((z+trZ(trNo,3)),(y+trY(trNo,3)),(x+trX(trNo,3))) ~= 200;
-			conditionfinal = conditionone || conditiontwo ||  conditionthree || conditionfour;  
-			if(conditionfinal)
+            if x+trX(trNo,3)>0 && y+trY(trNo,3)>0 && z+trZ(trNo,3)>0 && x+trX(trNo,3)<=afmSize(1) && y+trY(trNo,3)<=afmSize(2) && z+trZ(trNo,3)<=afmSize(3);
+                conditionthree = Boundary((z+trZ(trNo,3)),(y+trY(trNo,3)),(x+trX(trNo,3))) == 1;
+                conditionfour = Ttag((z+trZ(trNo,3)),(y+trY(trNo,3)),(x+trX(trNo,3))) ~= 200;
+                conditionfinal = conditionone || conditiontwo ||  conditionthree || conditionfour;  
+            else
+                conditionfinal = conditionone || conditiontwo;
+            end            
+			if conditionfinal 
 				flagc = false;
 				Tc = 5000;
             else
@@ -103,13 +115,13 @@ function [Tvalue, chKnownX, chKnownY, chKnownZ, changedKnownImage] = afmUpdateNe
               a_realflag = isreal(Ta);
               b_realflag = isreal(Tb);
               c_realflag = isreal(Tc);
-              if (~a_realflag) || ((~b_realflag))|| ((~c_realflag))
-                fprintf('Imaginary value appears stage xyzxyz\n');
-                Ta = Ta
-                Tb = Tb
-                Tc = Tc
-                xxxx
-              end
+%               if (~a_realflag) || ((~b_realflag))|| ((~c_realflag))
+%                 fprintf('Imaginary value appears stage xyzxyz\n');
+%                 Ta = Ta
+%                 Tb = Tb
+%                 Tc = Tc
+%                 xxxx
+%               end
 			% if both interest points are ok.
 			% flaga = true; flagb = true; flagc = true; %!!!!!! This line should be commented in the future
 			if(flaga && flagb && flagc)

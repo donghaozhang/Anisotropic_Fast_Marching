@@ -75,8 +75,9 @@ fprintf('afmAnisotropicFastMarching function has been called\n');
 	chKnownZ = [];
 	% The following variable is just for defining loop iterations
 	mainloopcounter = 1;
-	while(size(trial,1) ~= 0 || size(trialC,1) ~= 0 || (numel(chKnownX) ~= 0) && ~limitReached)
-	% for xxxx = 1 : 15710
+    breakflag = false;
+	% while(size(trial,1) ~= 0 || size(trialC,1) ~= 0 || (numel(chKnownX) ~= 0) && ~limitReached && breakflag==false)
+	for xxxx = 1 : 1710
 		mainloopcounter = mainloopcounter + 1;
 		fprintf('Main loop iteration %d\n', mainloopcounter);
         % Tvalue_realflag = isreal(Tvalue);

@@ -1,9 +1,9 @@
 clear all
 clc
 close all
-slab = 30;
+slab = 10;
 boundary = zeros(slab,slab,slab);
-object = zeros(slab,slab,slab); object(15,15,15) = 1;
+object = zeros(slab,slab,slab); object(5,5,5) = 1;
 volDim = [1,1,1];
 F = ones(slab,slab,slab) * 2;
 angle = pi/7;
@@ -41,6 +41,6 @@ for(z = 1 : afmSize(3))
 end
 [Tval, Ttag] = afmAnisotropicFastMarching(Tval, Ttag, F, boundary, dx, dy, dz, afmSize, T, timeLimit);
 Tval(Tval==100) = -1;
-figure,imagesc(Tval(:,:,15));
-figure,imagesc(squeeze(Tval(:,15,:)));
-figure,imagesc(squeeze(Tval(15,:,:)));
+figure,imagesc(Tval(:,:,5));
+figure,imagesc(squeeze(Tval(:,5,:)));
+figure,imagesc(squeeze(Tval(5,:,:)));

@@ -1,4 +1,4 @@
-function [Tvalue, Ttag, value_iter, trial, trialC] = afmUpdateNeighborhoodTrial(Tvalue, Ttag, F, Boundary, dx, dy, dz, afmSize, D, x, y, z, trial, trialC, trX, trY, trZ, tetNo, value_iter)
+function [Tvalue, Ttag, value_iter, trial, trialC, breakflag] = afmUpdateNeighborhoodTrial(Tvalue, Ttag, F, Boundary, dx, dy, dz, afmSize, D, x, y, z, trial, trialC, trX, trY, trZ, tetNo, value_iter)
 % void UpdateNeighborhoodTrial( float*** Tvalue, 
 % 		int*** Ttag, float*** F, 
 % 		unsigned char*** Boundary, 
@@ -53,10 +53,13 @@ function [Tvalue, Ttag, value_iter, trial, trialC] = afmUpdateNeighborhoodTrial(
 		conditionone = (x+trX(trNo,1))<1 || (y+trY(trNo,1))<1 || (z+trZ(trNo,1))<1; 
 		% x = 23 test case
 		conditiontwo = x+trX(trNo,1)>=afmSize(1) || y+trY(trNo,1)>= afmSize(2) || z+trZ(trNo,1)>= afmSize(3);
-		conditionthree = (Boundary((z+trZ(trNo,1)), (y+trY(trNo,1)), (x+trX(trNo,1))) == 1);
-		conditionfour = (Ttag((z+trZ(trNo,1)),(y+trY(trNo,1)),(x+trX(trNo,1))) ~= 200);
-
-		finalcondition = conditionone || conditiontwo || conditionthree || conditionfour;  
+        if  (x+trX(trNo,1))>1 && (y+trY(trNo,1))>1 && (z+trZ(trNo,1))>1 && x+trX(trNo,1)<= afmSize(1) && y+trY(trNo,1)<= afmSize(2) && z+trZ(trNo,1)<= afmSize(3);
+            conditionthree = (Boundary((z+trZ(trNo,1)), (y+trY(trNo,1)), (x+trX(trNo,1))) == 1);
+            conditionfour = (Ttag((z+trZ(trNo,1)),(y+trY(trNo,1)),(x+trX(trNo,1))) ~= 200);
+            finalcondition = conditionone || conditiontwo || conditionthree || conditionfour;  
+        else
+            finalcondition = conditionone || conditiontwo;
+        end
 		if  finalcondition 
 			flaga = false;
 			Ta = 5000;
@@ -283,6 +286,10 @@ function [Tvalue, Ttag, value_iter, trial, trialC] = afmUpdateNeighborhoodTrial(
 		if( Ttag(z,y,x) == 175 ) % point is already in the good trial list. UPDATE.
 			viter = value_iter{z,y,x,1};
 			viterkeys = keys(viter);
+            if numel(viterkeys) == 0
+                breakflag = true;
+                return;
+            end
 			firstkey = viterkeys{1};
 			if( firstkey > temp )
 				Tvalue(z,y,x) = temp;
@@ -309,6 +316,10 @@ function [Tvalue, Ttag, value_iter, trial, trialC] = afmUpdateNeighborhoodTrial(
 				% removing from the bad one.
 				viter = value_iter{z,y,x,2};	
 				% fm_map->trialC.erase( viter );
+                if numel(viterkeys) == 0
+                    breakflag = true;
+                    return;
+                end
 				firstkey = viter{1}
 				remove(trialC, firstkey);
 				% adding to the good trial list
