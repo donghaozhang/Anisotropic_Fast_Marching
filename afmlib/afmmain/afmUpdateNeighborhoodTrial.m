@@ -1,4 +1,4 @@
-function [Tvalue, Ttag, value_iter, trial, trialC, breakflag] = afmUpdateNeighborhoodTrial(Tvalue, Ttag, F, Boundary, dx, dy, dz, afmSize, D, x, y, z, trial, trialC, trX, trY, trZ, tetNo, value_iter)
+function [Tvalue, Ttag, value_iter, trial, trialC] = afmUpdateNeighborhoodTrial(Tvalue, Ttag, F, Boundary, dx, dy, dz, afmSize, D, x, y, z, trial, trialC, trX, trY, trZ, tetNo, value_iter)
 % void UpdateNeighborhoodTrial( float*** Tvalue, 
 % 		int*** Ttag, float*** F, 
 % 		unsigned char*** Boundary, 
@@ -316,7 +316,7 @@ function [Tvalue, Ttag, value_iter, trial, trialC, breakflag] = afmUpdateNeighbo
 				% removing from the bad one.
 				viter = value_iter{z,y,x,2};	
 				% fm_map->trialC.erase( viter );
-                if numel(viterkeys) == 0
+                if numel(viter) == 0
                     breakflag = true;
                     return;
                 end

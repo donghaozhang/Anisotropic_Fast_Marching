@@ -76,8 +76,8 @@ fprintf('afmAnisotropicFastMarching function has been called\n');
 	% The following variable is just for defining loop iterations
 	mainloopcounter = 1;
     breakflag = false;
-	% while(size(trial,1) ~= 0 || size(trialC,1) ~= 0 || (numel(chKnownX) ~= 0) && ~limitReached && breakflag==false)
-	for xxxx = 1 : 1710
+	while(size(trial,1) ~= 0 || size(trialC,1) ~= 0 || (numel(chKnownX) ~= 0) && ~limitReached)
+	% for xxxx = 1 : 1710
 		mainloopcounter = mainloopcounter + 1;
 		fprintf('Main loop iteration %d\n', mainloopcounter);
         % Tvalue_realflag = isreal(Tvalue);
@@ -109,6 +109,10 @@ fprintf('afmAnisotropicFastMarching function has been called\n');
 			else % the good list is empty. make the minimum element known. 
 				% find the minimum element in the bad list.
 				valuestrialC = values(trialC);
+                if numel(valuestrialC) == 0
+%                     breakflag = true;
+                    return;
+                end
 				afmindex = valuestrialC{1};
 				pos = afmind2sub(afmsize, afmindex);
 				posx = pos.x;
@@ -172,7 +176,7 @@ fprintf('afmAnisotropicFastMarching function has been called\n');
 			y = j - yon(yonNo,2);
 			z = k - yon(yonNo,3);
 			if(x>=1 && x<afmSize(1) && y>=1 && y<afmSize(2) && z>=1 && z<afmSize(3) && Boundary(z,y,x) == 0 && Ttag(z,y,x) ~= 200)
-		    	[Tvalue, Ttag, value_iter] = afmUpdateNeighborhoodTrial(Tvalue, Ttag, F, Boundary, dx, dy, dz, afmSize, D, x, y, z, trial, trialC, trX, trY, trZ, 8, value_iter);
+		    	[Tvalue, Ttag, value_iter, trial, trialC] = afmUpdateNeighborhoodTrial(Tvalue, Ttag, F, Boundary, dx, dy, dz, afmSize, D, x, y, z, trial, trialC, trX, trY, trZ, 8, value_iter);
                 % Tvalue_realflag = isreal(Tvalue);
                 % if (~Tvalue_realflag) 
                 %     fprintf('Imaginary value appears because Tvalue after trial\n');
@@ -187,8 +191,10 @@ fprintf('afmAnisotropicFastMarching function has been called\n');
     	%time(&endTrial);
     	%t_updateTrial = t_updateTrial + difftime( endTrial, startTrial );
     	% /////////////////////////////
-
+%     vec = Tvalue==100;
+%     sum(vec(:))
     end
+    
 end
 
 % #include "mxAnisoDistanceTransform.h"
