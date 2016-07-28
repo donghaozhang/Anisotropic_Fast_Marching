@@ -39,24 +39,32 @@ function groupvvaluemat = afmgroup_velocity(x, y, z, D, yon, F)
 	% detD = d11 * (d22 * d33 - d23 * d23) - d12 * (d12 * d33 - d13 * d23) + d13 * (d12 * d23 - d22 * d13);
 	% fprintf('the determinant calculated by afm is %d\n', detD);
 	detDmat = det(hessianmat);
-	
+	%!!!!!!!
+    %     detDmat_realflag = isreal(detDmat);
+    %     if (~detDmat_realflag) 
+    %         fprintf('Imaginary value appears because Tvalue trial update ~flaga && ~flagb && flagc\n');
+    %         xxxxxxxx
+    %     end
+    %!!!!!!!!!
 	% fprintf('the determinant calculated by matlab is %d\n', detDmat);
-	% x_tilda(1) = yon(1)*(d22 * d33 - d23 * d23)  / detDmat + yon(2) * (d13 * d23 - d12 * d33) / detDmat + yon(3) * (d12 * d23 - d22 * d13) / detDmat;
-	% x_tilda(2) = yon(1)*(d23 * d13 - d12 * d33)  / detDmat + yon(2) * (d11 * d33 - d13 * d13) / detDmat + yon(3) * (d13 * d12 - d11 * d23) / detDmat;
-	% x_tilda(3) = yon(1)*(d12 * d23 - d22 * d13)  / detDmat + yon(2) * (d12 * d13 - d11 * d23) / detDmat + yon(3) * (d11 * d22 - d12 * d12) / detDmat;
+	x_tildamat(1) = yon(1)*(d22 * d33 - d23 * d23)  / detDmat + yon(2) * (d13 * d23 - d12 * d33) / detDmat + yon(3) * (d12 * d23 - d22 * d13) / detDmat;
+	x_tildamat(2) = yon(1)*(d23 * d13 - d12 * d33)  / detDmat + yon(2) * (d11 * d33 - d13 * d13) / detDmat + yon(3) * (d13 * d12 - d11 * d23) / detDmat;
+	x_tildamat(3) = yon(1)*(d12 * d23 - d22 * d13)  / detDmat + yon(2) * (d12 * d13 - d11 * d23) / detDmat + yon(3) * (d11 * d22 - d12 * d12) / detDmat;
 	% fprintf('tilda value 1: %d tilda value 2: %d tilda value 3: %d \n', x_tilda(1), x_tilda(2), x_tilda(3));
 	
 	% inv(hessianmat) : 3 x 3 yon : 3 x 1
-	x_tildamat = inv(hessianmat) * yon;
+%     hessianmatsize = size(inv(hessianmat))
+%     yonsize = size(yon)
+% 	x_tildamat = inv(hessianmat) * yon;
 	% fprintf('tilda value 1 matlab: %f tilda value 2 matlab : %f tilda value 3matlab : %f \n', x_tildamat(1), x_tildamat(2), x_tildamat(3));
 
 	% x_tildamat : 3 x 1 hessianmat 3 x 3 A = (1 x 3) (3 x 3) (3 x 1) (1)
 	% x_tildamat = [1;4;9]; test case
 	% A = sqrt(d11*x_tildamat(1)*x_tildamat(1) + d22*x_tildamat(2)*x_tildamat(2) + d33*x_tildamat(3)*x_tildamat(3) + 2*d12*x_tildamat(1)*x_tildamat(2) + 2*d13*x_tildamat(1)*x_tildamat(3) + 2*d23*x_tildamat(2)*x_tildamat(3))*F;
 	% fprintf('the value of A calculated by afm is %f\n', A)
-	checksqrt = x_tildamat' * hessianmat * x_tildamat;
+	checksqrt = x_tildamat * hessianmat * x_tildamat';
 	if (checksqrt < 0)
-		fprintf('You can not put negative number under the square happened in groupvelocity\n');
+		% fprintf('You can not put negative number under the square happened in groupvelocity\n');
 		% return;
         % This decision might revised in the future
         checksqrt = abs(checksqrt);
@@ -67,16 +75,32 @@ function groupvvaluemat = afmgroup_velocity(x, y, z, D, yon, F)
 	% X(2) = x_tildamat(2) / Amat;
 	% X(3) = x_tildamat(3) / Amat;
 	% X
-	Xmat = x_tildamat / Amat;
+	Xmat = x_tildamat' / Amat;
 	% Xmat
 	% B = sqrt(d11*Xmat(1)*Xmat(1) + d22*Xmat(2)*Xmat(2) + d33*Xmat(3)*Xmat(3) + 2*d12*Xmat(1)*Xmat(2) + 2*d13*Xmat(1)*Xmat(3) + 2*d23*Xmat(2)*Xmat(3));
 	% B
-	Bmat = sqrt(Xmat' * hessianmat * Xmat);
+	
+    checksqrt = Xmat' * hessianmat * Xmat;
+	if (checksqrt < 0)
+		% fprintf('You can not put negative number under the square happened in groupvelocity\n');
+		% return;
+        % This decision might revised in the future
+        checksqrt = abs(checksqrt);
+    end
+    Bmat = sqrt(checksqrt);
 	% Bmat
 	% groupvvalue = sqrt((Xmat(1)*d11 + Xmat(2)*d12 + Xmat(3)*d13)^2 + (Xmat(1)*d12 + Xmat(2)*d22 + Xmat(3)*d23)^2 + (Xmat(1)*d13 + Xmat(2)*d23 + Xmat(3)*d33)^2)*F/Bmat;
 	% groupvvalue
 	temp = (hessianmat * Xmat).^2;
 	groupvvaluemat = sqrt(sum(temp(:))) * F / Bmat;
+    %!!!!!!!
+    groupvvaluemat_realflag = isreal(groupvvaluemat);
+    if (~groupvvaluemat_realflag)
+        save('../../mat/debuggroup_velocity.mat')
+        fprintf('Imaginary value appears because Tvalue trial update ~flaga && ~flagb && flagc\n');
+        xxxxxxxx
+    end
+    %!!!!!!!!!
 	% groupvvaluemat
 end
 

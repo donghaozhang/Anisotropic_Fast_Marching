@@ -18,10 +18,10 @@ fprintf('afmAnisotropicFastMarching function has been called\n');
 	    for(j=1:afmSize(2))
 			% value_iter[k][j] = new multimap<float,long>::iterator*[Size[0]];
 			% knownChangedImage[k][j] = new bool[Size[0]];
-		 	for(i=1:afmSize(1))
+		 	for(ii=1:afmSize(1))
 		    	% value_iter[k][j][i] = new multimap<float,long>::iterator[2]; % first - trialValue, second - trialCValue
 		    	% knownChangedImage[k][j][i] = false;
-		    	if(Boundary(k,j,i) == 0)
+		    	if(Boundary(k,j,ii) == 0)
 					N = N + 1;
 				end
 		    end
@@ -39,10 +39,10 @@ fprintf('afmAnisotropicFastMarching function has been called\n');
 	% initial tagging for everypoint in the domain.
   	for k=1:afmSize(3)
     	for j=1:afmSize(2)
-	    	for i=1:afmSize(1) 
-	      		if(Boundary(k,j,i) == 0 && Ttag(k,j,i) == 200) %  if it's outside the boundary and is known.
+	    	for ii=1:afmSize(1) 
+	      		if(Boundary(k,j,ii) == 0 && Ttag(k,j,ii) == 200) %  if it's outside the boundary and is known.
 		    		for(yonNo=1:6)
-				    	x = (i - yon(yonNo,1));
+				    	x = (ii - yon(yonNo,1));
 				    	y = (j - yon(yonNo,2));
 				    	z = (k - yon(yonNo,3));
 				    	conditionone = x>=0 && x<afmSize(1) && y>=0 && y<afmSize(2) && z>=0 && z<afmSize(3);
@@ -76,9 +76,14 @@ fprintf('afmAnisotropicFastMarching function has been called\n');
 	% The following variable is just for defining loop iterations
 	mainloopcounter = 1;
 	% while(size(trial,1) ~= 0 || size(trialC,1) ~= 0 || (numel(chKnownX) ~= 0) && ~limitReached)
-	for xxxx = 1 : 6
+	for xxxx = 1 : 500
 		mainloopcounter = mainloopcounter + 1;
 		fprintf('Main loop iteration %d\n', mainloopcounter);
+        Tvalue_realflag = isreal(Tvalue);
+        if (~Tvalue_realflag) 
+            fprintf('Imaginary value appears because Tvalue\n');
+            xxxxxx
+        end
     	if(numel(chKnownX) == 0)
 			if(size(trial,1) ~= 0) % make the minimum element known.
 		    	% finding the minimum element in the good list.
@@ -88,16 +93,16 @@ fprintf('afmAnisotropicFastMarching function has been called\n');
 				posx = pos.x;
 				posy = pos.y;
 				posz = pos.z;
-				i = afmlround(posx);
+				ii = afmlround(posx);
 				j = afmlround(posy);
 				k = afmlround(posz);
 		    	% make the point known and remove it from the good list.
-		    	Ttag(k,j,i) = 200;
+		    	Ttag(k,j,ii) = 200;
 		    	keystrial = keys(trial);
 				firstkey = keystrial{1};
 				remove(trial, firstkey); 
 		    % NOT TO MAKE THE UNNECESSARY SIMULATIONS.
-			    if(Tvalue(k,j,i) >= timeLimit)
+			    if(Tvalue(k,j,ii) >= timeLimit)
 					limitReached=true;
 				end
 			else % the good list is empty. make the minimum element known. 
@@ -108,31 +113,31 @@ fprintf('afmAnisotropicFastMarching function has been called\n');
 				posx = pos.x;
 				posy = pos.y;
 				posz = pos.z;
-				i = afmlround(posx);
+				ii = afmlround(posx);
 				j = afmlround(posy);
 				k = afmlround(posz);
 
 				% make the point known and remove it from the bad list.
-				Ttag(k,j,i) = 200;
+				Ttag(k,j,ii) = 200;
 				keystrialC = keys(trialC);
 				firstkey = keystrialC{1};
 				remove(trialC, firstkey);
             end
     	else % recursive correction of known points.
-			i = chKnownX(1);
+			ii = chKnownX(1);
 			j = chKnownY(1);
 			k = chKnownZ(1);
 			chKnownX(1) = [];
 			chKnownY(1) = [];
 			chKnownZ(1) = [];
-			knownChangedImage(k,j,i) = false; % removed
+			knownChangedImage(k,j,ii) = false; % removed
 		end
       
 		% RECURSIVE CORRECTION OF THE KNOWN POINTS //
 		% time(&startKnown);
 		Knowntime = tic;
 		for yonNo=1:6 % looking at all directions during fast marching.
-			x = i - yon(yonNo,1);
+			x = ii - yon(yonNo,1);
 			y = j - yon(yonNo,2);
 			z = k - yon(yonNo,3);
 			% fprintf('update known neighbour loop\n');
@@ -145,7 +150,12 @@ fprintf('afmAnisotropicFastMarching function has been called\n');
 				updatedDirection(3) = -yon(yonNo,3);
 				% fprintf('update known neighbour loop\n');
 
-				[Tvalue, chKnownX, chKnownY, chKnownZ, changedKnownImage] = afmUpdateNeighborhoodKnown(Tvalue, Ttag, F, Boundary, dx, dy, dz, afmSize, D, x, y, z, chKnownX, chKnownY, chKnownZ, trX, trY, trZ, 8, knownChangedImage, updatedDirection);
+				[Tvalue, chKnownX, chKnownY, chKnownZ, knownChangedImage] = afmUpdateNeighborhoodKnown(Tvalue, Ttag, F, Boundary, dx, dy, dz, afmSize, D, x, y, z, chKnownX, chKnownY, chKnownZ, trX, trY, trZ, 8, knownChangedImage, updatedDirection);
+                Tvalue_realflag = isreal(Tvalue);
+                if (~Tvalue_realflag) 
+                    fprintf('Imaginary value appears because Tvalue after known\n');
+                    xxxxxx
+                end
 			end
 		end
     	% time(&endKnown);
@@ -157,11 +167,16 @@ fprintf('afmAnisotropicFastMarching function has been called\n');
 		%time( &startTrial );
 		Trialtime = tic;
 	    for yonNo=1:6
-			x = i - yon(yonNo,1);
+			x = ii - yon(yonNo,1);
 			y = j - yon(yonNo,2);
 			z = k - yon(yonNo,3);
 			if(x>=1 && x<afmSize(1) && y>=1 && y<afmSize(2) && z>=1 && z<afmSize(3) && Boundary(z,y,x) == 0 && Ttag(z,y,x) ~= 200)
 		    	[Tvalue, Ttag, value_iter] = afmUpdateNeighborhoodTrial(Tvalue, Ttag, F, Boundary, dx, dy, dz, afmSize, D, x, y, z, trial, trialC, trX, trY, trZ, 8, value_iter);
+                Tvalue_realflag = isreal(Tvalue);
+                if (~Tvalue_realflag) 
+                    fprintf('Imaginary value appears because Tvalue after trial\n');
+                    xxxxxx
+                end
 		    end
 		end
 		printtrial = toc(Trialtime);

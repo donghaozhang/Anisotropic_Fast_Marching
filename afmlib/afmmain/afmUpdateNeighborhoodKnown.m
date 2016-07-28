@@ -1,10 +1,15 @@
 %% afmUpdateNeighborhoodKnown: function description
 function [Tvalue, chKnownX, chKnownY, chKnownZ, changedKnownImage] = afmUpdateNeighborhoodKnown(Tvalue, Ttag, F, Boundary, dx, dy, dz, afmSize, D, x, y, z, chKnownX, chKnownY, chKnownZ, trX, trY, trZ, tetNo, changedKnownImage, updatedDirection)
-	fprintf('afmUpdateNeighborhoodKnown function has been called\n');
+	% fprintf('afmUpdateNeighborhoodKnown function has been called\n');
 	temp = 5000; % used to find the minimum value in the trial list.
 	temp2 = 5000; % used to find the minimum value in the trialC list.
 	temp = Tvalue(z,y,x);
 	temp2 = Tvalue(z,y,x);
+	Tvalue_realflag = isreal(Tvalue);
+	if (~Tvalue_realflag) 
+		fprintf('Imaginary value appears because Tvalue\n');
+		xxxx
+	end
 	for(trNo= 1 : tetNo)
 		% initializing flags for the roots and interest points
 		flag1 = false;
@@ -65,7 +70,7 @@ function [Tvalue, chKnownX, chKnownY, chKnownZ, changedKnownImage] = afmUpdateNe
 			conditionthree = Boundary((z+trZ(trNo,1)),(y+trY(trNo,1)),(x+trX(trNo,1))) == 1;
 			conditionfour = Ttag((z+trZ(trNo,1)), (y+trY(trNo,1)), (x+trX(trNo,1))) ~= 200;
 			conditionfinal = conditionone || conditiontwo || conditionthree || conditionfour;  
-			if(conditionfinal)
+			if(conditionone&&conditiontwo)
 				flaga = false;
 				Ta = 5000;
 			else
@@ -92,12 +97,21 @@ function [Tvalue, chKnownX, chKnownY, chKnownZ, changedKnownImage] = afmUpdateNe
 			if(conditionfinal)
 				flagc = false;
 				Tc = 5000;
-			else
+            else
 				Tc = Tvalue((z+trZ(trNo,3)),(y+trY(trNo,3)),(x+trX(trNo,3)));
-			end
-
+            end
+              a_realflag = isreal(Ta);
+              b_realflag = isreal(Tb);
+              c_realflag = isreal(Tc);
+              if (~a_realflag) || ((~b_realflag))|| ((~c_realflag))
+                fprintf('Imaginary value appears stage xyzxyz\n');
+                Ta = Ta
+                Tb = Tb
+                Tc = Tc
+                xxxx
+              end
 			% if both interest points are ok.
-			flaga = true; flagb = true; flagc = true; %!!!!!! This line should be commented in the future
+			% flaga = true; flagb = true; flagc = true; %!!!!!! This line should be commented in the future
 			if(flaga && flagb && flagc)
 				% Kx = (p(1)*Ta/d_a + p(2)*Tb/d_b + p(3)*Tc/d_c);
 				% Ky = (q(1)*Ta/d_a + q(2)*Tb/d_b + q(3)*Tc/d_c);
@@ -210,8 +224,17 @@ function [Tvalue, chKnownX, chKnownY, chKnownZ, changedKnownImage] = afmUpdateNe
 					end
 				end 
 
-			end
-
+            end
+              a_realflag = isreal(Ta);
+              b_realflag = isreal(Tb);
+              c_realflag = isreal(Tc);
+              if (~a_realflag) || ((~b_realflag))|| ((~c_realflag))
+                fprintf('Imaginary value appears stage xxxxx\n');
+                Ta = Ta
+                Tb = Tb
+                Tc = Tc
+                xxxx
+              end
 			% if found roots are not useful. both flags should be false.
 			if( (~flag1 && ~flag2) || 1)
 				if(flaga && flagb && flagc) % all interest points are ok.
