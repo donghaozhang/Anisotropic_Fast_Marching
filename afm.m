@@ -116,10 +116,13 @@ function T_map = afm(I, threshold, foreground_speed_coefficient, speedastensorfl
         end
     end
     % T = boost_vec_one(bI, T, 5);                
-    save('mat\diffussion.mat','T');
+    % save('mat\diffussion.mat','T');
+    
     boundary_value = zeros(szI(1),szI(2),szI(3));
     object = zeros(szI(1),szI(2),szI(3));
     object(SourcePoint(1),SourcePoint(2),SourcePoint(3)) = 1;
     volDim = [1,1,1];
+    save('mat\prepareforafm.mat');
+    xxxxxxxxx
     T_map = mxAnisoDistanceTransform(object, T, boundary_value, SpeedImage, volDim);
 end

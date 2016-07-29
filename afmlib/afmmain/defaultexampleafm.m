@@ -1,7 +1,7 @@
 clear all
 clc
 close all
-slab = 20;
+slab = 30;
 boundary = zeros(slab,slab,slab);
 object = zeros(slab,slab,slab); object(round(slab/2),round(slab/2),round(slab/2)) = 1;
 volDim = [1,1,1];
@@ -39,8 +39,12 @@ for(z = 1 : afmSize(3))
         end
     end
 end
+tic
 [Tval, Ttag] = afmAnisotropicFastMarching(Tval, Ttag, F, boundary, dx, dy, dz, afmSize, T, timeLimit);
+toc
 Tval(Tval==100) = -1;
 figure,imagesc(Tval(:,:,round(slab/2)));
 figure,imagesc(squeeze(Tval(:,round(slab/2),:)));
 figure,imagesc(squeeze(Tval(round(slab/2),:,:)));
+% Elapsed time is 190.128439 seconds. 20 x 20 x 20
+% Elapsed time is 786.655332 seconds. 30 x 30 x 30

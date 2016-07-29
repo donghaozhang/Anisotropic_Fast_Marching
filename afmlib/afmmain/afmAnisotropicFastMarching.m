@@ -63,9 +63,9 @@ fprintf('afmAnisotropicFastMarching function has been called\n');
 	    	end
 		end
     end
-	t_find = 0;
-	t_updateTrial = 0;
-	t_updateKnown = 0;
+% 	t_find = 0;
+% 	t_updateTrial = 0;
+% 	t_updateKnown = 0;
 
 	% NOT TO MAKE THE UNNECESSARY SIMULATIONS
 	limitReached = false;
@@ -75,7 +75,7 @@ fprintf('afmAnisotropicFastMarching function has been called\n');
 	chKnownZ = [];
 	% The following variable is just for defining loop iterations
 	mainloopcounter = 1;
-    breakflag = false;
+    % breakflag = false;
 	while(size(trial,1) ~= 0 || size(trialC,1) ~= 0 || (numel(chKnownX) ~= 0) && ~limitReached)
 	% for xxxx = 1 : 1710
 		mainloopcounter = mainloopcounter + 1;
@@ -139,8 +139,8 @@ fprintf('afmAnisotropicFastMarching function has been called\n');
 		end
       
 		% RECURSIVE CORRECTION OF THE KNOWN POINTS //
-		% time(&startKnown);
-		Knowntime = tic;
+		% time(&startKnown);c++ code 
+		% Knowntime = tic;
 		for yonNo=1:6 % looking at all directions during fast marching.
 			x = ii - yon(yonNo,1);
 			y = j - yon(yonNo,2);
@@ -164,13 +164,13 @@ fprintf('afmAnisotropicFastMarching function has been called\n');
 			end
 		end
     	% time(&endKnown);
-    	printknown = toc(Knowntime);
+    	% printknown = toc(Knowntime);
     	% fprintf('The each cycle of known time is counted as %d seconds \n', printknown);
     	% t_updateKnown = t_updateKnown + difftime( endKnown,startKnown );
 		%//////////////////////////////////////////////
 		%// ADDING NEW TRIAL POINTS //
 		%time( &startTrial );
-		Trialtime = tic;
+		% Trialtime = tic;
 	    for yonNo=1:6
 			x = ii - yon(yonNo,1);
 			y = j - yon(yonNo,2);
@@ -184,11 +184,11 @@ fprintf('afmAnisotropicFastMarching function has been called\n');
                 % end
 		    end
 		end
-		printtrial = toc(Trialtime);
+		% printtrial = toc(Trialtime);
 		% fprintf('The each cycle of trial time is counted as %d seconds \n', printtrial);
-		t_updateKnown = t_updateKnown + printknown;
-		t_updateTrial = t_updateTrial + printtrial;
-    	%time(&endTrial);
+        % t_updateKnown = t_updateKnown + printknown;
+		% t_updateTrial = t_updateTrial + printtrial;
+    	%time(&endTrial); c++ code
     	%t_updateTrial = t_updateTrial + difftime( endTrial, startTrial );
     	% /////////////////////////////
 %     vec = Tvalue==100;
